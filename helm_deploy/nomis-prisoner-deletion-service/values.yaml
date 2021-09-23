@@ -10,6 +10,8 @@ generic-service:
     port: 8080
 
   ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
     enabled: true
     host: app-hostname.local    # override per environment
     tlsSecretName: nomis-prisoner-deletion-service-cert
@@ -32,13 +34,4 @@ generic-service:
     nomis-prisoner-deletion-service:
       APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
 
-  allowlist:
-    office: "217.33.148.210/32"
-    health-kick: "35.177.252.195/32"
-    mojvpn: "81.134.202.29/32"
-    cloudplatform-live1-1: "35.178.209.113/32"
-    cloudplatform-live1-2: "3.8.51.207/32"
-    cloudplatform-live1-3: "35.177.252.54/32"
-
-generic-prometheus-alerts:
-  targetApplication: nomis-prisoner-deletion-service
+  allowlist: null
