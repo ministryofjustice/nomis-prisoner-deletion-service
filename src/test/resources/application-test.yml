@@ -4,3 +4,26 @@ server:
 management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
+
+api:
+  base:
+    url:
+      oauth: http://localhost:8090/auth
+
+spring:
+  datasource:
+    url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+    username: sa
+    password:
+
+    hikari:
+      maximum-pool-size: 2
+
+  jpa:
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration/nomis/ddl,classpath:/db/migration/data,classpath:/db/migration/nomis/data,classpath:/db/migration/nomis/data-hsqldb
+
+server.shutdown: immediate

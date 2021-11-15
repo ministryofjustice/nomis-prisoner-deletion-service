@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository.OffenderNotFoundException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -34,6 +35,20 @@ class NomisPrisonerDeletionServiceExceptionHandler {
         ErrorResponse(
           status = INTERNAL_SERVER_ERROR,
           userMessage = "Unexpected error: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(OffenderNotFoundException::class)
+  fun handleOffenderNotFoundException(e: OffenderNotFoundException): ResponseEntity<ErrorResponse?>? {
+    log.debug("Offender not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = HttpStatus.NOT_FOUND,
+          userMessage = "Offender not found: ${e.message}",
           developerMessage = e.message
         )
       )
