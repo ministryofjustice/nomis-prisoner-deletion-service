@@ -21,7 +21,7 @@ generic-service:
   env:
     JAVA_OPTS: "-Xmx512m"
     SERVER_PORT: "8080"
-    SPRING_PROFILES_ACTIVE: "logstash"
+    SPRING_PROFILES_ACTIVE: "oracle"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
 
@@ -33,5 +33,9 @@ generic-service:
   namespace_secrets:
     nomis-prisoner-deletion-service:
       APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
+      JDBC_URL: "JDBC_URL"
+      DB_USERNAME: "DB_USERNAME"
+      DB_PASSWORD: "DB_PASSWORD"
+
 
   allowlist: null
