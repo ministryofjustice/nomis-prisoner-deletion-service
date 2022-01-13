@@ -97,18 +97,18 @@ class OffenderPendingDeletionRepositoryTest {
   fun `can retrieve offender pending deletion`() {
     val offenders = repository.findOffenderPendingDeletion("Z0020ZZ", deletionDueDate.plusDays(1))
 
-    assertThat(offenders).isPresent()
-    assertThat(offenders.get().offenderNumber).isEqualTo("Z0020ZZ")
+    assertThat(offenders).isNotNull
+    assertThat(offenders?.offenderNumber).isEqualTo("Z0020ZZ")
   }
 
   @Test
   fun `retrieve offender pending deletion returns empty if deletion not due`() {
-    assertThat(repository.findOffenderPendingDeletion("Z0020ZZ", deletionDueDate.minusDays(1))).isEmpty
+    assertThat(repository.findOffenderPendingDeletion("Z0020ZZ", deletionDueDate.minusDays(1))).isNull()
   }
 
   @Test
   fun `retrieve offender pending deletion returns empty if offender not found`() {
-    assertThat(repository.findOffenderPendingDeletion("UNKNOWN", deletionDueDate.plusDays(1))).isEmpty
+    assertThat(repository.findOffenderPendingDeletion("UNKNOWN", deletionDueDate.plusDays(1))).isNull()
   }
 
   companion object {

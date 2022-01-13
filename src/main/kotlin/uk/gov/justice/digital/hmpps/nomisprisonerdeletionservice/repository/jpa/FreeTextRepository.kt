@@ -595,5 +595,5 @@ interface FreeTextRepository : Repository<FreeTextMatch, String> {
             )""",
     nativeQuery = true
   )
-  fun findMatchUsingOffenderIds(offenderIds: Set<Long>, regex: String): MutableList<FreeTextMatch>
+  fun findMatchUsingOffenderIds(offenderIds: Set<Long>, regex: String): List<FreeTextMatch>
 }

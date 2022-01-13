@@ -6,14 +6,11 @@ import org.assertj.core.api.Condition
 import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.test.context.ActiveProfiles
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
 import javax.transaction.Transactional
 
-@SpringBootTest
-@ActiveProfiles("test")
-class OffenderDeletionRepositoryTest {
+class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Autowired
   lateinit var repository: OffenderDeletionRepository

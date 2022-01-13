@@ -15,7 +15,6 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.sql.
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.sql.SELECT_OFFENDER_NUMBER
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.sql.SELECT_OFFENDER_NUMBERS
 import java.time.LocalDate
-import java.util.Optional
 
 @Repository
 interface OffenderPendingDeletionRepository : CrudRepository<OffenderPendingDeletion, String> {
@@ -49,5 +48,5 @@ interface OffenderPendingDeletionRepository : CrudRepository<OffenderPendingDele
   fun findOffenderPendingDeletion(
     @Param("offenderNo") offenderNo: String,
     @Param("today") today: LocalDate
-  ): Optional<OffenderPendingDeletion>
+  ): OffenderPendingDeletion?
 }

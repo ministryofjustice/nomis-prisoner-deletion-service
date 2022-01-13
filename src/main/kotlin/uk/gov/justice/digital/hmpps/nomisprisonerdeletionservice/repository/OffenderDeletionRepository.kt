@@ -191,7 +191,7 @@ import java.util.function.Supplier
 
 @Repository
 class OffenderDeletionRepository(
-  private val jdbcTemplate: NamedParameterJdbcTemplate
+  val jdbcTemplate: NamedParameterJdbcTemplate
 ) {
 
   /**
