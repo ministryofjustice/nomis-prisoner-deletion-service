@@ -18,11 +18,11 @@ data class OffenderBookingPendingDeletion(
 
   @ManyToOne
   @JoinColumn(name = "OFFENDER_ID", nullable = false)
-  val offenderAlias: OffenderAliasPendingDeletion,
+  val offenderAlias: OffenderAliasPendingDeletion? = null,
 
   @OneToMany(mappedBy = "offenderBooking")
-  val offenderCharges: List<OffenderChargePendingDeletion>? = null,
+  val offenderCharges: List<OffenderChargePendingDeletion> = ArrayList(),
 
   @OneToMany(mappedBy = "offenderBooking")
-  val offenderAlerts: List<OffenderAlertPendingDeletion>? = null
+  val offenderAlerts: List<OffenderAlertPendingDeletion> = ArrayList()
 )

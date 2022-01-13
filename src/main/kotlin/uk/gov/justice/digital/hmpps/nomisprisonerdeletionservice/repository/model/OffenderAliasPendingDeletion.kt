@@ -12,10 +12,10 @@ import javax.persistence.Table
 data class OffenderAliasPendingDeletion(
   @Id
   @Column(name = "OFFENDER_ID", nullable = false)
-  val offenderId: Long,
+  val offenderId: Long? = null,
 
   @Column(name = "OFFENDER_ID_DISPLAY", nullable = false)
-  val offenderNumber: String,
+  val offenderNumber: String? = null,
 
   @Column(name = "ROOT_OFFENDER_ID")
   val rootOffenderId: Long? = null,
@@ -27,14 +27,14 @@ data class OffenderAliasPendingDeletion(
   val middleName: String? = null,
 
   @Column(name = "LAST_NAME", nullable = false)
-  val lastName: String,
+  val lastName: String? = null,
 
   @Column(name = "BIRTH_DATE")
   val birthDate: LocalDate? = null,
 ) {
   @OneToMany(mappedBy = "offenderAlias")
-  val offenderBookings: List<OffenderBookingPendingDeletion>? = null
+  var offenderBookings: List<OffenderBookingPendingDeletion> = ArrayList()
 
   @OneToMany(mappedBy = "offenderAlias")
-  val offenderIdentifiers: List<OffenderIdentifierPendingDeletion>? = null
+  var offenderIdentifiers: List<OffenderIdentifierPendingDeletion> = ArrayList()
 }
