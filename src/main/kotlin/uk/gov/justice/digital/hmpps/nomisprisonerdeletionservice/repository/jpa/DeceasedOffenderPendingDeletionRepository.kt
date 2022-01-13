@@ -1,15 +1,15 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa
 
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderPendingDeletion
 import java.time.LocalDate
 
 @Repository
-interface DeceasedOffenderPendingDeletionRepository : CrudRepository<OffenderPendingDeletion, String> {
+interface DeceasedOffenderPendingDeletionRepository : JpaRepository<OffenderPendingDeletion, String> {
 
   /**
    * The following query finds offenders that satisfy the following requirements.

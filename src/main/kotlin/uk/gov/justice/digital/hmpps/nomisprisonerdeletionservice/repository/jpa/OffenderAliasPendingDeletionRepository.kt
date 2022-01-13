@@ -8,5 +8,5 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.mode
 @Repository
 interface OffenderAliasPendingDeletionRepository : CrudRepository<OffenderAliasPendingDeletion, Long> {
 
-  fun findOffenderAliasPendingDeletionByOffenderNumber(@Param("offenderNumber") offenderNumber: String?): List<OffenderAliasPendingDeletion>
+  fun findOffenderAliasPendingDeletionByOffenderNumber(@Param("offenderNumber") offenderNumber: String): List<OffenderAliasPendingDeletion>
 }
