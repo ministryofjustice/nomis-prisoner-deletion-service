@@ -26,4 +26,21 @@ spring:
     enabled: true
     locations: classpath:/db/migration/nomis/ddl,classpath:/db/migration/data,classpath:/db/migration/nomis/data,classpath:/db/migration/nomis/data-hsqldb
 
+data.compliance:
+  deletion.enabled: true
+  deceased.deletion.enabled: true
+
+hmpps.sqs:
+  provider: localstack
+  queues:
+    datacompliancerequest:
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+    datacomplianceresponse:
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+  topics:
+    datacomplianceevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
 server.shutdown: immediate
