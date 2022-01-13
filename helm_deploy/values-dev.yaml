@@ -10,3 +10,5 @@ generic-service:
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
     API_BASE_URL_OAUTH: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
+    DATA_COMPLIANCE_DELETION_ENABLED: false
+    DATA_COMPLIANCE_DECEASED_DELETION_ENABLED: false
