@@ -28,13 +28,12 @@ class JwtAuthHelper() {
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
   fun setAuthorisation(
-    user: String = "AUTH_ADM",
-    roles: List<String> = listOf(),
-    scopes: List<String> = listOf()
+    user: String = "nomis-prisoner-deletion-service",
+    roles: List<String> = listOf()
   ): (HttpHeaders) -> Unit {
     val token = createJwt(
       subject = user,
-      scope = scopes,
+      scope = listOf("read"),
       expiryTime = Duration.ofHours(1L),
       roles = roles
     )
@@ -50,7 +49,7 @@ class JwtAuthHelper() {
   ): String =
     mutableMapOf<String, Any>()
       .also { subject?.let { subject -> it["user_name"] = subject } }
-      .also { it["client_id"] = "nomis-user-roles" }
+      .also { it["client_id"] = "nomis-prisoner-deletion-service" }
       .also { roles?.let { roles -> it["authorities"] = roles } }
       .also { scope?.let { scope -> it["scope"] = scope } }
       .let {

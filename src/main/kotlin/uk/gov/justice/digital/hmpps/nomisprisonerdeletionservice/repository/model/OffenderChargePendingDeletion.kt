@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull
 data class OffenderChargePendingDeletion(
   @Id
   @Column(name = "OFFENDER_CHARGE_ID")
-  val offenderChargeId: Long,
+  val offenderChargeId: Long? = null,
 
   @Column(name = "OFFENCE_CODE", nullable = false)
   val offenceCode: @NotNull String,

@@ -16,24 +16,24 @@ class OffenderIdentifierPendingDeletion {
   @Embeddable
   class OffenderIdentifierPK : Serializable {
     @Column(name = "OFFENDER_ID", nullable = false)
-    val offenderId: Long? = null
+    var offenderId: Long? = null
 
     @Column(name = "OFFENDER_ID_SEQ", nullable = false)
-    val offenderIdSeq: Long? = null
+    var offenderIdSeq: Long? = null
   }
 
   @EmbeddedId
-  val offenderIdentifierPK: OffenderIdentifierPK? = null
+  var offenderIdentifierPK: OffenderIdentifierPK? = null
 
   @ManyToOne
   @JoinColumn(name = "OFFENDER_ID", insertable = false, updatable = false)
-  val offenderAlias: OffenderAliasPendingDeletion? = null
+  var offenderAlias: OffenderAliasPendingDeletion? = null
 
   @Column(name = "IDENTIFIER_TYPE", nullable = false)
-  val identifierType: String? = null
+  var identifierType: String? = null
 
   @Column(name = "IDENTIFIER", nullable = false)
-  val identifier: String? = null
+  var identifier: String? = null
 
   val isPnc: Boolean
     get() = "PNC".equals(identifierType, ignoreCase = true)
