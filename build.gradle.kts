@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.0"
-  kotlin("plugin.spring") version "1.5.30"
-  kotlin("plugin.jpa") version "1.5.30"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.1"
+  kotlin("plugin.spring") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.10"
 }
 
 configurations {
@@ -21,18 +21,18 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc10:19.13.0.0.1")
 
   runtimeOnly("org.hsqldb:hsqldb:2.6.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.3.0")
+  runtimeOnly("org.flywaydb:flyway-core:8.4.1")
 
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.3")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.3")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.3")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.4")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.4")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.4")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  testImplementation("org.testcontainers:localstack:1.16.0")
+  testImplementation("org.testcontainers:localstack:1.16.2")
   testImplementation("org.awaitility:awaitility-kotlin:4.1.1")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
