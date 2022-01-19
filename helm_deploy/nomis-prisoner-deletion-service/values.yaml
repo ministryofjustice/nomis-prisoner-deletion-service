@@ -51,3 +51,11 @@ generic-service:
 
 
   allowlist: null
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 640Mi
+    limits:
+      cpu: 2000m
+      memory: 1240Mi
