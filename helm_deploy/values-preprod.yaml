@@ -1,0 +1,14 @@
+---
+# Per environment values which override defaults in nomis-user-roles-api/values.yaml
+
+generic-service:
+  replicaCount: 4
+
+  ingress:
+    host: nomis-delete-pp.aks-live-1.studio-hosting.service.justice.gov.uk
+
+  env:
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+    API_BASE_URL_OAUTH: https://sign-in-preprod.hmpps.service.justice.gov.uk/auth
+    DATA_COMPLIANCE_DELETION_ENABLED: false
+    DATA_COMPLIANCE_DECEASED_DELETION_ENABLED: false
