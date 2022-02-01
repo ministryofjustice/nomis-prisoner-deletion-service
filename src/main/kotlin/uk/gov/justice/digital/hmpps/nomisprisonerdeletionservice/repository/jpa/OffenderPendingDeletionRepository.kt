@@ -26,7 +26,7 @@ interface OffenderPendingDeletionRepository : CrudRepository<OffenderPendingDele
    * is within the requested time window AND:
    *
    * * Inactive, Out
-   * * Not a lifer or IPP
+   * * Not a lifer or IPP (including sentence codes 'IPP', 'LIFE/IPP', 'LR_IPP', 'LIFE' & 'LR_LIFE' )
    * * Never unlawfully at large
    * * No health problems
    * * Not deceased in custody
