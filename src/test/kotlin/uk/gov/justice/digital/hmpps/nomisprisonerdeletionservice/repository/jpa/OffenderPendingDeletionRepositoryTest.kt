@@ -82,6 +82,30 @@ class OffenderPendingDeletionRepositoryTest {
   }
 
   @Test
+  @Sql("data/insert_ipp_sentence.sql")
+  fun `retrieve offenders due for deletion excludes offenders with an IPP sentence calc type`() {
+    val offenders = repository.getOffendersDueForDeletionBetween(
+      deletionDueDate,
+      deletionDueDate.plusDays(1),
+      Pageable.unpaged()
+    )
+
+    assertThat(offenders).isEmpty()
+  }
+
+  @Test
+  @Sql("data/insert_life_sentence.sql")
+  fun `retrieve offenders due for deletion excludes offenders with an LIFE sentence calc type`() {
+    val offenders = repository.getOffendersDueForDeletionBetween(
+      deletionDueDate,
+      deletionDueDate.plusDays(1),
+      Pageable.unpaged()
+    )
+
+    assertThat(offenders).isEmpty()
+  }
+
+  @Test
   @Sql("add_iwp_document.sql")
   fun `retrieve offenders due for deletion filters out those with documents`() {
     assertThat(
