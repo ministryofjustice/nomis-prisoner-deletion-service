@@ -15,7 +15,7 @@ import java.time.LocalDate
 class DeceasedOffenderPendingDeletionRepositoryTest {
 
   @Autowired
-  lateinit var repository: uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.DeceasedOffenderPendingDeletionRepository
+  lateinit var repository: DeceasedOffenderPendingDeletionRepository
 
   @Test
   fun `can find deceased offenders due for deletion with paging`() {

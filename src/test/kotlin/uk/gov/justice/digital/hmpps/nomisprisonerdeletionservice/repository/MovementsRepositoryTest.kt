@@ -12,19 +12,19 @@ class MovementsRepositoryTest : IntegrationTestBase() {
   lateinit var repository: MovementsRepository
 
   @Test
-  fun canRetrieveMovementsByOffendersAndMovementTypes() {
+  fun `can retrieve movements by offenders and movement types`() {
     val movements: List<Movement> = repository.getMovementsByOffenders(listOf("A6676RS"), listOf("TRN"), false, false)
     assertThat(movements).extracting<String>(Movement::toAgency).containsOnly("BMI", "MDI")
   }
 
   @Test
-  fun canRetrieveRecentMovementsByOffenders() {
+  fun `can retrieve recent movements by offenders`() {
     val movements: List<Movement> = repository.getMovementsByOffenders(listOf("A6676RS"), listOf(), true, false)
     assertThat(movements).extracting<String>(Movement::toCity).containsExactly("Wadhurst")
   }
 
   @Test
-  fun canRetrieveMovementsByOffenders() {
+  fun `can retrieve movements by offenders`() {
     val movements: List<Movement> = repository.getMovementsByOffenders(listOf("A6676RS"), listOf(), false, false)
     assertThat(movements).extracting<String>(Movement::fromAgency).containsOnly("BMI", "LEI")
   }

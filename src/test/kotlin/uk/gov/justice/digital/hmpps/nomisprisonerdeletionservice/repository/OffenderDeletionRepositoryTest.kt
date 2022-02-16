@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
 import javax.transaction.Transactional
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 
 class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
@@ -20,7 +21,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Test
   @Transactional
-  fun cleanseOffenderDataToBaseRecord() {
+  fun `cleanse offender data to base record`() {
     assertOffenderDataExists()
     assertThat(repository.cleanseOffenderDataExcludingBaseRecord("A1234AA")).containsExactly(-1001L)
     assertBaseRecordExists()
@@ -30,7 +31,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Test
   @Transactional
-  fun cleanseOffenderDataUsingUnknownOffenderThrows() {
+  fun `cleanse offender data using unknown offender throws`() {
     Assertions.assertThatThrownBy { repository.cleanseOffenderDataExcludingBaseRecord("unknown") }
       .isInstanceOf(OffenderDeletionRepository.OffenderNotFoundException::class.java)
       .hasMessage("Offender with id [unknown] not found.")
@@ -38,7 +39,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Test
   @Transactional
-  fun deleteAllOffenderDataIncludingBaseRecord() {
+  fun `delete all offender data including base record`() {
     assertOffenderDataExists()
     assertThat(repository.deleteAllOffenderDataIncludingBaseRecord("A1234AA"))
       .containsExactly(-1001L)
@@ -48,7 +49,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Test
   @Transactional
-  fun deleteAllOffenderDataUsingUnknownOffenderThrows() {
+  fun `delete all offender data using unknown offender throws`() {
     Assertions.assertThatThrownBy {
       repository.deleteAllOffenderDataIncludingBaseRecord(
         "unknown"

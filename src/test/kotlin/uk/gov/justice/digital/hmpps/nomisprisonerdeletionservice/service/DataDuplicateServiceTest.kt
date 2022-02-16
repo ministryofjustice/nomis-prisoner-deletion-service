@@ -148,7 +148,7 @@ internal class DataDuplicateServiceTest {
 
     service.checkForDataDuplicates(offenderNumber1, retentionCheckId)
 
-    verify(eventPublisher).sendDuplicateIdResult(
+    verify(eventPublisher).sendDuplicateDataResult(
       DataDuplicateResult(
         offenderIdDisplay = offenderNumber1,
         retentionCheckId = retentionCheckId,
@@ -164,7 +164,7 @@ internal class DataDuplicateServiceTest {
 
     service.checkForDataDuplicates(offenderNumber1, retentionCheckId)
 
-    verify(eventPublisher).sendDuplicateIdResult(
+    verify(eventPublisher).sendDuplicateDataResult(
       DataDuplicateResult(
         offenderIdDisplay = offenderNumber1,
         retentionCheckId = retentionCheckId,

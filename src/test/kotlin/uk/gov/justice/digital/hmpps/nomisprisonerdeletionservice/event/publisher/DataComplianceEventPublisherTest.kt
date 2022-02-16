@@ -36,26 +36,26 @@ import java.time.LocalDateTime
 internal class DataComplianceEventPublisherTest {
 
   private val hmppsQueueService = mock<HmppsQueueService>()
-  private val requestSqsClient = mock<AmazonSQS>()
-  private val requestSqsDlqClient = mock<AmazonSQS>()
+  private val responseSqsClient = mock<AmazonSQS>()
+  private val responseSqsDlqClient = mock<AmazonSQS>()
   private lateinit var dataComplianceEventPublisher: DataComplianceEventPublisher
 
   @BeforeEach
   internal fun setUp() {
-    whenever(hmppsQueueService.findByQueueId("datacompliancerequest")).thenReturn(
+    whenever(hmppsQueueService.findByQueueId("datacomplianceresponse")).thenReturn(
       HmppsQueue(
-        "datacompliancerequest",
-        requestSqsClient,
-        "request-queue",
-        requestSqsDlqClient,
-        "request-dlq"
+        "datacomplianceresponse",
+        responseSqsClient,
+        "response-queue",
+        responseSqsDlqClient,
+        "response-dlq"
       )
     )
-    whenever(requestSqsClient.getQueueUrl("request-queue")).thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:request-queue"))
-    whenever(requestSqsDlqClient.getQueueUrl("request-dlq")).thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:request-dlq"))
+    whenever(responseSqsClient.getQueueUrl("response-queue")).thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:response-queue"))
+    whenever(responseSqsDlqClient.getQueueUrl("response-dlq")).thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:response-dlq"))
     dataComplianceEventPublisher = DataComplianceEventPublisher(hmppsQueueService, objectMapper = ObjectMapper())
 
-    whenever(requestSqsClient.sendMessage(any())).thenReturn(SendMessageResult().withMessageId("abc"))
+    whenever(responseSqsClient.sendMessage(any())).thenReturn(SendMessageResult().withMessageId("abc"))
   }
 
   @Test
@@ -73,7 +73,7 @@ internal class DataComplianceEventPublisherTest {
       )
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
         assertThatJson(it.messageBody).isEqualTo(
           """
@@ -118,7 +118,7 @@ internal class DataComplianceEventPublisherTest {
       )
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
         assertThatJson(it.messageBody).isEqualTo(
           """{
@@ -146,7 +146,7 @@ internal class DataComplianceEventPublisherTest {
       OffenderPendingDeletionReferralComplete(1, 1, 1)
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
         assertThat(it.messageAttributes.getValue("eventType").toString())
           .contains("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION")
@@ -170,7 +170,7 @@ internal class DataComplianceEventPublisherTest {
       OffenderDeletionComplete("G0913VR", 1)
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -194,7 +194,7 @@ internal class DataComplianceEventPublisherTest {
       DataDuplicateResult("G0913VR", 1)
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -218,7 +218,7 @@ internal class DataComplianceEventPublisherTest {
       DataDuplicateResult("G0913VR", 1)
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -242,7 +242,7 @@ internal class DataComplianceEventPublisherTest {
       OffenderRestrictionResult("G0913VR", 1, true)
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -267,7 +267,7 @@ internal class DataComplianceEventPublisherTest {
       FreeTextSearchResult("G0913VR", 1, listOf("someTable, someOtherTable"))
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -306,7 +306,7 @@ internal class DataComplianceEventPublisherTest {
       )
     )
 
-    verify(requestSqsClient).sendMessage(
+    verify(responseSqsClient).sendMessage(
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
@@ -348,33 +348,33 @@ internal class DataComplianceEventPublisherTest {
   inner class QueueMessageAttributes {
     @Test
     internal fun `async calls for queue status successfully complete`() {
-      whenever(requestSqsDlqClient.getQueueUrl("request-dlq"))
-        .thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:request-dlq"))
+      whenever(responseSqsDlqClient.getQueueUrl("response-dlq"))
+        .thenReturn(GetQueueUrlResult().withQueueUrl("arn:eu-west-1:response-dlq"))
 
-      val requestQueueResult = GetQueueAttributesResult().withAttributes(
+      val responseQueueResult = GetQueueAttributesResult().withAttributes(
         mapOf(
           "ApproximateNumberOfMessages" to "7",
           "ApproximateNumberOfMessagesNotVisible" to "2"
         )
       )
       whenever(
-        requestSqsClient.getQueueAttributes(
-          "arn:eu-west-1:request-queue",
+        responseSqsClient.getQueueAttributes(
+          "arn:eu-west-1:response-queue",
           listOf("ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible")
         )
       )
-        .thenReturn(requestQueueResult)
+        .thenReturn(responseQueueResult)
 
-      val requestDlqResult = GetQueueAttributesResult().withAttributes((mapOf("ApproximateNumberOfMessages" to "5")))
+      val responseDlqResult = GetQueueAttributesResult().withAttributes((mapOf("ApproximateNumberOfMessages" to "5")))
       whenever(
-        requestSqsDlqClient.getQueueAttributes(
-          "arn:eu-west-1:request-dlq",
+        responseSqsDlqClient.getQueueAttributes(
+          "arn:eu-west-1:response-dlq",
           listOf("ApproximateNumberOfMessages")
         )
       )
-        .thenReturn(requestDlqResult)
+        .thenReturn(responseDlqResult)
 
-      val queueStatus = dataComplianceEventPublisher.getRequestQueueStatus()
+      val queueStatus = dataComplianceEventPublisher.getResponseQueueStatus()
       assertThat(queueStatus.messagesOnQueue).isEqualTo(7)
       assertThat(queueStatus.messagesInFlight).isEqualTo(2)
       assertThat(queueStatus.messagesOnDlq).isEqualTo(5)
@@ -383,7 +383,7 @@ internal class DataComplianceEventPublisherTest {
 
   @Nested
   @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-  inner class DataComplianceRequestStatusActive {
+  inner class DataComplianceResponseStatusActive {
     fun activeTestSource() = listOf(
       Arguments.of(0, 0, 0, false),
       Arguments.of(1, 0, 0, true),
@@ -404,7 +404,7 @@ internal class DataComplianceEventPublisherTest {
       messagesInFlight: Int,
       expectedActive: Boolean
     ) {
-      assertThat(DataComplianceRequestStatus(messagesOnQueue, messagesOnDlq, messagesInFlight).active).isEqualTo(
+      assertThat(DataComplianceResponseStatus(messagesOnQueue, messagesOnDlq, messagesInFlight).active).isEqualTo(
         expectedActive
       )
     }
