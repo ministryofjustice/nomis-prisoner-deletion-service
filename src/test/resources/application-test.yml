@@ -18,6 +18,8 @@ spring:
 
     hikari:
       maximum-pool-size: 2
+  main:
+    allow-bean-definition-overriding: true
 
   jpa:
     show-sql: true
@@ -42,5 +44,9 @@ hmpps.sqs:
   topics:
     datacomplianceevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
+logging:
+  level:
+    ROOT: DEBUG
 
 server.shutdown: immediate
