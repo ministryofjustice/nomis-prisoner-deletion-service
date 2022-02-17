@@ -45,7 +45,7 @@ final class DataComplianceEventListener(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @JmsListener(destination = "datacomplianceresponse", containerFactory = "hmppsQueueContainerFactoryProxy")
+  @JmsListener(destination = "datacompliancerequest", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun handleEvent(message: Message<String>) {
     val eventType = getEventType(message.headers)
     log.info("Handling incoming data compliance event of type: {}", eventType)
