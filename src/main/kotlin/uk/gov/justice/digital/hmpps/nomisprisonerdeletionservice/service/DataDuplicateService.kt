@@ -46,7 +46,7 @@ class DataDuplicateService(
   }
 
   fun checkForDataDuplicates(offenderNo: String, retentionCheckId: Long) {
-    eventPublisher.sendDuplicateIdResult(
+    eventPublisher.sendDuplicateDataResult(
       DataDuplicateResult(
         offenderIdDisplay = offenderNo,
         retentionCheckId = retentionCheckId,

@@ -29,60 +29,60 @@ class DataComplianceEventPublisher(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  val requestQueue by lazy { hmppsQueueService.findByQueueId("datacompliancerequest") as HmppsQueue }
-  val requestSqsClient by lazy { requestQueue.sqsClient }
-  val requestSqsDlqClient by lazy { requestQueue.sqsDlqClient as AmazonSQS }
-  val requestQueueUrl by lazy { requestQueue.queueUrl }
-  val requestDlqUrl by lazy { requestQueue.dlqUrl as String }
+  val responseQueue by lazy { hmppsQueueService.findByQueueId("datacomplianceresponse") as HmppsQueue }
+  val responseSqsClient by lazy { responseQueue.sqsClient }
+  val responseSqsDlqClient by lazy { responseQueue.sqsDlqClient as AmazonSQS }
+  val responseQueueUrl by lazy { responseQueue.queueUrl }
+  val responseDlqUrl by lazy { responseQueue.dlqUrl as String }
 
   fun send(event: OffenderPendingDeletion) {
-    log.trace("Sending referral of offender pending deletion: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event))
+    log.info("Sending referral of offender pending deletion: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION", event))
   }
 
   fun send(event: ProvisionalDeletionReferralResult) {
-    log.trace("Sending referral of provisional deletion referral result: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER_PROVISIONAL_DELETION_REFERRAL", event))
+    log.info("Sending referral of provisional deletion referral result: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER_PROVISIONAL_DELETION_REFERRAL", event))
   }
 
   fun send(event: OffenderPendingDeletionReferralComplete) {
-    log.trace("Sending process completed event for request: {}", event.batchId)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event))
+    log.info("Sending process completed event for request: {}", event.batchId)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-PENDING-DELETION-REFERRAL-COMPLETE", event))
   }
 
   fun send(event: OffenderDeletionComplete) {
-    log.trace("Sending offender deletion complete event: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event))
+    log.info("Sending offender deletion complete event: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE", event))
   }
 
   fun sendDuplicateIdResult(event: DataDuplicateResult) {
-    log.trace("Sending duplicate ID result for offender: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-ID-RESULT", event))
+    log.info("Sending duplicate ID result for offender: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-ID-RESULT", event))
   }
 
   fun sendDuplicateDataResult(event: DataDuplicateResult) {
-    log.trace("Sending duplicate data result for offender: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT", event))
+    log.info("Sending duplicate data result for offender: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT", event))
   }
 
   fun send(event: OffenderRestrictionResult) {
-    log.trace("Sending offender restriction result for offender: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-RESTRICTION-RESULT", event))
+    log.info("Sending offender restriction result for offender: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-RESTRICTION-RESULT", event))
   }
 
   fun send(event: FreeTextSearchResult) {
-    log.trace("Sending free text search result for offender: {}", event.offenderIdDisplay)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT", event))
+    log.info("Sending free text search result for offender: {}", event.offenderIdDisplay)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_FREE-TEXT-MORATORIUM-RESULT", event))
   }
 
   fun send(event: DeceasedOffenderDeletionResult) {
-    log.trace("Sending deceased offender result for batch: {}", event.batchId)
-    requestSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT", event))
+    log.info("Sending deceased offender result for batch: {}", event.batchId)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT", event))
   }
 
   fun generateRequest(eventType: String, messageBody: Any): SendMessageRequest? {
     return SendMessageRequest()
-      .withQueueUrl(requestQueueUrl)
+      .withQueueUrl(responseQueueUrl)
       .withMessageAttributes(
         mapOf(
           "eventType" to stringAttribute(eventType),
@@ -92,14 +92,14 @@ class DataComplianceEventPublisher(
       .withMessageBody(messageBody.toJson(objectMapper))
   }
 
-  fun getRequestQueueStatus(): DataComplianceRequestStatus {
-    val queueAttributes = requestSqsClient.getQueueAttributes(
-      requestQueueUrl,
+  fun getResponseQueueStatus(): DataComplianceResponseStatus {
+    val queueAttributes = responseSqsClient.getQueueAttributes(
+      responseQueueUrl,
       listOf("ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible")
     )
-    val dlqAttributes = requestSqsDlqClient.getQueueAttributes(requestDlqUrl, listOf("ApproximateNumberOfMessages"))
+    val dlqAttributes = responseSqsDlqClient.getQueueAttributes(responseDlqUrl, listOf("ApproximateNumberOfMessages"))
 
-    return DataComplianceRequestStatus(
+    return DataComplianceResponseStatus(
       messagesOnQueue = queueAttributes.attributes["ApproximateNumberOfMessages"].toIntOrZero(),
       messagesInFlight = queueAttributes.attributes["ApproximateNumberOfMessagesNotVisible"].toIntOrZero(),
       messagesOnDlq = dlqAttributes.attributes["ApproximateNumberOfMessages"].toIntOrZero(),
@@ -116,7 +116,7 @@ class DataComplianceEventPublisher(
     this?.toInt() ?: 0
 }
 
-data class DataComplianceRequestStatus(val messagesOnQueue: Int, val messagesOnDlq: Int, val messagesInFlight: Int) {
+data class DataComplianceResponseStatus(val messagesOnQueue: Int, val messagesOnDlq: Int, val messagesInFlight: Int) {
   val active
     get() = messagesOnQueue > 0 || messagesOnDlq > 0 || messagesInFlight > 0
 }
