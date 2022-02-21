@@ -38,7 +38,7 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
 }
 
 java {
