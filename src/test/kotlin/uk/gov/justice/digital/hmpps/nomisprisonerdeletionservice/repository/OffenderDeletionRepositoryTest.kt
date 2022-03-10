@@ -4,19 +4,31 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Condition
 import org.assertj.core.api.ListAssert
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.jdbc.core.JdbcTemplate
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.test.context.ActiveProfiles
 import javax.transaction.Transactional
 
-class OffenderDeletionRepositoryTest : IntegrationTestBase() {
-
-  @Autowired
-  lateinit var repository: OffenderDeletionRepository
+@ActiveProfiles("test")
+@DataJdbcTest
+class OffenderDeletionRepositoryTest {
 
   @Autowired
   lateinit var jdbcTemplate: JdbcTemplate
+
+  @Autowired
+  lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+
+  lateinit var repository: OffenderDeletionRepository
+
+  @BeforeEach
+  fun setUp() {
+    repository = OffenderDeletionRepository(namedParameterJdbcTemplate)
+  }
 
   @Test
   @Transactional
@@ -163,7 +175,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByAgencyIncidentId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT agency_incident_id FROM $tableName WHERE agency_incident_id IN (-6)",
         String::class.java
@@ -172,7 +184,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByHealthProblemId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT offender_health_problem_id FROM $tableName WHERE offender_health_problem_id IN (-201, -205, -206)",
         String::class.java
@@ -181,7 +193,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByProgramId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT off_prgref_id FROM $tableName WHERE off_prgref_id IN (-1, -2, -3, -4)",
         String::class.java
@@ -190,7 +202,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryForCourtEventCharges(): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT event_id FROM court_event_charges WHERE event_id = -201 AND offender_charge_id = -1",
         String::class.java
@@ -199,7 +211,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByIncidentCaseId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT incident_case_id FROM $tableName WHERE incident_case_id IN (-1, -2, -3)",
         String::class.java
@@ -208,7 +220,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByOffenderBookId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT offender_book_id FROM $tableName WHERE offender_book_id = -1",
         String::class.java
@@ -217,7 +229,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByOffenderId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT offender_id FROM $tableName WHERE offender_id = -1001",
         String::class.java
@@ -226,7 +238,7 @@ class OffenderDeletionRepositoryTest : IntegrationTestBase() {
   }
 
   fun queryByRootOffenderId(tableName: String): ListAssert<String> {
-    return Assertions.assertThat(
+    return assertThat(
       jdbcTemplate.queryForList(
         "SELECT root_offender_id FROM $tableName WHERE root_offender_id = -1001",
         String::class.java

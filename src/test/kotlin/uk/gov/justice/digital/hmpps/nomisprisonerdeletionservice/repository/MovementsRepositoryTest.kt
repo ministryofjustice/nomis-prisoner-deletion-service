@@ -1,15 +1,28 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.Movement
 
-class MovementsRepositoryTest : IntegrationTestBase() {
+@ActiveProfiles("test")
+@DataJdbcTest
+class MovementsRepositoryTest {
 
   @Autowired
+  lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+
   lateinit var repository: MovementsRepository
+
+  @BeforeEach
+  fun setUp() {
+    repository = MovementsRepository(namedParameterJdbcTemplate)
+  }
 
   @Test
   fun `can retrieve movements by offenders and movement types`() {
