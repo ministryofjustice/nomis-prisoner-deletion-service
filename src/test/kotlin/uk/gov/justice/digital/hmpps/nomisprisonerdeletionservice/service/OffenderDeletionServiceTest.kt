@@ -40,7 +40,8 @@ internal class OffenderDeletionServiceTest {
     service = OffenderDeletionService(
       DataComplianceProperties(
         deletionEnabled = true,
-        deceasedDeletionEnabled = false
+        deceasedDeletionEnabled = false,
+        offenderNoBookingEnabled = false
       ),
       offenderAliasPendingDeletionRepository,
       offenderDeletionRepository,
@@ -130,7 +131,8 @@ internal class OffenderDeletionServiceTest {
       service = OffenderDeletionService(
         DataComplianceProperties(
           deletionEnabled = false,
-          deceasedDeletionEnabled = false
+          deceasedDeletionEnabled = false,
+          offenderNoBookingEnabled = false
         ),
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,

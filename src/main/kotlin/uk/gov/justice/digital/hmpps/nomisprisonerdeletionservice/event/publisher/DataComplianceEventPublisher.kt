@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.FreeTextSearchResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderDeletionComplete
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletionReferralComplete
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderRestrictionResult
@@ -78,6 +79,11 @@ class DataComplianceEventPublisher(
   fun send(event: DeceasedOffenderDeletionResult) {
     log.info("Sending deceased offender result for batch: {}", event.batchId)
     responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT", event))
+  }
+
+  fun send(event: OffenderNoBookingDeletionResult) {
+    log.info("Sending offenders with no bookings deletion result for batch: {}", event.batchId)
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT", event))
   }
 
   fun generateRequest(eventType: String, messageBody: Any): SendMessageRequest? {

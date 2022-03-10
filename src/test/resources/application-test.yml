@@ -31,6 +31,8 @@ spring:
 data.compliance:
   deletion.enabled: true
   deceased.deletion.enabled: true
+  offender.no.booking.deletion.enabled: true
+
 
 hmpps.sqs:
   provider: localstack
