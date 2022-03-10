@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.DataDup
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.DeceasedOffenderDeletionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.FreeTextSearchService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderDeletionService
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderNoBookingDeletionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderRestrictionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.ReferralService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.validation.Validator
@@ -35,6 +36,7 @@ internal class DataComplianceEventListenerTest {
   private val offenderRestrictionService = mock<OffenderRestrictionService>()
   private val offenderDeletionService = mock<OffenderDeletionService>()
   private val deceasedOffenderDeletionService = mock<DeceasedOffenderDeletionService>()
+  private val offenderNoBookingDeletionService = mock<OffenderNoBookingDeletionService>()
 
   private val listener =
     DataComplianceEventListener(
@@ -45,7 +47,8 @@ internal class DataComplianceEventListenerTest {
       offenderDeletionService = offenderDeletionService,
       deceasedOffenderDeletionService = deceasedOffenderDeletionService,
       mapper = ObjectMapper(),
-      validator = Validator(Validation.buildDefaultValidatorFactory().validator)
+      validator = Validator(Validation.buildDefaultValidatorFactory().validator),
+      offenderNoBookingDeletionService = offenderNoBookingDeletionService
     )
 
   @Test
@@ -597,6 +600,33 @@ internal class DataComplianceEventListenerTest {
           {"limit":10}
         """.trimIndent(),
         mapOf("eventType" to "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
+      )
+    }
+      .isInstanceOf(ConstraintViolationException::class.java)
+      .hasMessageContaining("No batch ID specified in the request")
+    verifyNoInteractions(offenderDeletionService)
+  }
+
+  @Test
+  fun `handle no booking offender deletion request`() {
+    handleMessage(
+      """
+        {"batchId":987,
+        "limit":10}
+      """.trimIndent(),
+      mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
+    )
+    verify(offenderNoBookingDeletionService).deleteOffendersWithNoBookings(987L, PageRequest.of(0, 10))
+  }
+
+  @Test
+  fun `handle no booking offender deletion request if batch id is null`() {
+    assertThatThrownBy {
+      handleMessage(
+        """
+          {"limit":10}
+        """.trimIndent(),
+        mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
       )
     }
       .isInstanceOf(ConstraintViolationException::class.java)

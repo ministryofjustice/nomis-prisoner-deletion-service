@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.DeceasedOffenderDeletionRequest
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.FreeTextCheck
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.OffenderDeletionGranted
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.OffenderNoBookingDeletionRequest
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.OffenderRestrictionRequest
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.ProvisionalDeletionReferralRequest
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.consumer.dto.ReferralRequest
@@ -24,6 +25,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.Decease
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.FreeTextSearchService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderDeletionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderDeletionService.OffenderDeletionGrant
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderNoBookingDeletionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.OffenderRestrictionService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service.ReferralService
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.validation.Validator
@@ -38,6 +40,7 @@ final class DataComplianceEventListener(
   val offenderRestrictionService: OffenderRestrictionService,
   val offenderDeletionService: OffenderDeletionService,
   val deceasedOffenderDeletionService: DeceasedOffenderDeletionService,
+  val offenderNoBookingDeletionService: OffenderNoBookingDeletionService,
   val mapper: ObjectMapper,
   val validator: Validator
 ) {
@@ -127,6 +130,14 @@ final class DataComplianceEventListener(
     deceasedOffenderDeletionService.deleteDeceasedOffenders(event.batchId!!, pageRequest)
   }
 
+  fun handleNoBookingOffenderDeletionRequest(message: Message<String>) {
+    val event: OffenderNoBookingDeletionRequest =
+      parseEvent(message.payload, OffenderNoBookingDeletionRequest::class.java)
+    val pageRequest: Pageable = (event.limit?.let { PageRequest.of(0, it) } ?: unpaged())
+
+    offenderNoBookingDeletionService.deleteOffendersWithNoBookings(event.batchId!!, pageRequest)
+  }
+
   private fun getEventType(messageHeaders: MessageHeaders): String {
     val eventType = messageHeaders.get("eventType", String::class.java)
     checkNotNull(eventType) { "Message event type not found" }
@@ -148,6 +159,7 @@ final class DataComplianceEventListener(
     "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK" to this::handleOffenderRestrictionCheck,
     "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED" to this::handleDeletionGranted,
     "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST" to this::handleDeceasedOffenderDeletionRequest,
+    "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST" to this::handleNoBookingOffenderDeletionRequest
   )
 
   private fun <T> parseEvent(requestJson: String, eventType: Class<T>): T {

@@ -418,5 +418,95 @@ class DataComplianceMessageTest : IntegrationTestBase() {
           """.trimIndent()
         )
     }
+
+    @Test
+    fun `handle offender no booking deletion`() {
+
+      requestAwsSqsClient.sendMessage(
+        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
+          .withMessageBody(
+            """
+       {
+           "batchId":987,
+           "limit":10
+       }
+            """.trimIndent()
+          )
+      )
+
+      messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT")
+        .andVerifyBodyContains(
+          """
+           {
+             "batchId":987,
+             "offenders":[
+                {
+                   "offenderIdDisplay":"A1234AN",
+                   "firstName":"CHESNEY",
+                   "middleName":null,
+                   "lastName":"THOMSON",
+                   "birthDate":"1980-01-02",
+                   "offenderAliases":[
+                      {
+                         "offenderId":-1096
+                      }
+                   ]
+                },
+                {
+                   "offenderIdDisplay":"A1234AO",
+                   "firstName":"TREVOR",
+                   "middleName":null,
+                   "lastName":"SMITH",
+                   "birthDate":"1998-11-01",
+                   "offenderAliases":[
+                      {
+                         "offenderId":-1092
+                      },
+                      {
+                         "offenderId":-1093
+                      },
+                      {
+                         "offenderId":-1094
+                      },
+                      {
+                         "offenderId":-1095
+                      }
+                   ]
+                },
+                {
+                   "offenderIdDisplay":"A9880GH",
+                   "firstName":"BRIAN",
+                   "middleName":null,
+                   "lastName":"JONES",
+                   "birthDate":"1961-01-01",
+                   "offenderAliases":[
+                      {
+                         "offenderId":-1059
+                      }
+                   ]
+                },
+                                {
+                                   "offenderIdDisplay":"A1234DD",
+                                   "firstName":"JOHN",
+                                   "middleName":null,
+                                   "lastName":"DOE",
+                                   "birthDate":"1989-03-02",
+                                   "offenderAliases":[
+                                      {
+                                         "offenderId":-1056
+                                      },
+                                      {
+                                         "offenderId":-1057
+                                      },
+                                      {
+                                         "offenderId":-1058
+                                      }
+                                   ]
+                                }
+             ]
+          }
+          """.trimIndent()
+        )
+    }
   }
 }

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper
 
 import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletionReferralComplete
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.ProvisionalDeletionReferralResult
@@ -89,6 +90,28 @@ fun expectedProvisionalDeletionReferralResult(
     agencyLocationId = "LEI",
     offenceCodes = setOf("offence$offenderId"),
     alertCodes = setOf("alert$offenderId")
+  )
+}
+
+fun buildOffender(
+  offenderId: Long,
+  offenderNumber: String,
+  firstName: String = "Tom",
+  middleName: String = "Williamson",
+  lastName: String = "Jones"
+): OffenderNoBookingDeletionResult.Offender {
+  return OffenderNoBookingDeletionResult.Offender(
+    offenderIdDisplay = offenderNumber,
+    firstName = firstName,
+    middleName = middleName,
+    lastName = lastName,
+    birthDate = LocalDate.of(1993, 11, 12),
+    offenderAliases =
+    listOf(
+      OffenderNoBookingDeletionResult.OffenderAlias(
+        offenderId = offenderId,
+      )
+    ),
   )
 }
 

@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult.DeceasedOffender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.FreeTextSearchResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderDeletionComplete
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderPendingDeletionReferralComplete
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderRestrictionResult
@@ -279,6 +280,55 @@ internal class DataComplianceEventPublisherTest {
                 "retentionCheckId":1,
                 "matchingTables":["someTable, someOtherTable"]
              }
+          """.trimIndent()
+        )
+      }
+    )
+  }
+
+  @Test
+  fun `will send offender no booking deletion result`() {
+
+    dataComplianceEventPublisher.send(
+      OffenderNoBookingDeletionResult(
+        1,
+        listOf(
+          OffenderNoBookingDeletionResult.Offender(
+            "G0913VR", "John", "Middle", "Thompson", LocalDate.of(1966, 11, 11),
+            listOf(
+              OffenderNoBookingDeletionResult.OffenderAlias(
+                123
+              )
+            )
+          )
+        )
+      )
+    )
+
+    verify(responseSqsClient).sendMessage(
+      check {
+
+        assertThat(it.messageAttributes.getValue("eventType").toString())
+          .contains("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT")
+
+        assertThatJson(it.messageBody).isEqualTo(
+          """{
+                 "batchId":1,
+                 "offenders":[
+                    {
+                       "offenderIdDisplay":"G0913VR",
+                       "firstName":"John",
+                       "middleName":"Middle",
+                       "lastName":"Thompson",
+                       "birthDate":"1966-11-11",
+                       "offenderAliases":[
+                          {
+                             "offenderId":123
+                          }
+                       ]
+                    }
+                 ]
+              }
           """.trimIndent()
         )
       }

@@ -244,6 +244,35 @@ class OffenderDeletionRepository(
     return offenderIds
   }
 
+  /**
+   * Deletes all data associated with an offender with the given offender number with the exception of the following tables:
+   *
+   * GL_TRANSACTIONS (General Ledger) table - associated rows are anonymised by setting offender_id and offender_book_id to null.
+   * OFFENDERS
+   * OFFENDER_PROFILE_DETAILS
+   * OFFENDER_PHYSICAL_ATTRIBUTES
+   * OFFENDER_IMAGES
+   * OFFENDER_IDENTIFYING_MARKS
+   * OFFENDER_EXTERNAL_MOVEMENTS
+   * OFFENDER_BOOKING_DETAILS
+   * OFFENDER_ALERTS
+   * OFFENDER_GANG_INVESTS
+   * OFFENDER_GANG_EVIDENCES
+   * OFFENDER_GANG_AFFILIATIONS
+   * OFFENDER_IDENTIFIERS
+   * OFFENDER_PROFILE_DETAILS
+   * OFFENDER_ASSESSMENTS_ITEMS
+   * OFFENDER_ASSESSMENTS
+   * OFFENDER_NON_ASSOCIATIONS
+   * OFFENDER_NA_DETAILS
+   * OFFENDER_BOOKINGS
+   * OFFENDER_EXTERNAL_MOVEMENTS
+   * OFFENDER_SENT_CALCULATIONS
+   * OFFENDER_ASSESSMENT_ITEMS
+   * HDC_CALC_EXCLUSION_REASONS
+
+   * @return Set of offender_ids of the deleted offender aliases.
+   */
   fun deleteNonBaseRecordOffenderBookingData(offenderIds: Set<Long>, bookIds: Set<Long>) {
     log.debug("Deleting all non-base record offender booking data for offender ID: '{}'", offenderIds)
     if (bookIds.isNotEmpty()) {
@@ -251,6 +280,16 @@ class OffenderDeletionRepository(
       executeNamedSqlWithOffenderIdsAndBookingIds(OD_ANONYMISE_GL_TRANSACTIONS, offenderIds, bookIds)
       executeNamedSqlWithOffenderIdsAndBookingIds(OD_DELETE_OFFENDER_BELIEFS, offenderIds, bookIds)
     }
+  }
+
+  fun deleteAllOffenderDataExcludingBookings(offenderNumber: String): Set<Long>? {
+    log.info("Deleting all offender data for offender: '{}'", offenderNumber)
+    val offenderIds = offenderIdsFor(offenderNumber)
+    if (offenderIds.isEmpty()) { throw OffenderNotFoundException(offenderNumber) }
+    deleteNonBaseRecordOffenderData(offenderIds)
+    deleteBaseRecordOffenderData(offenderIds)
+    log.info("Deleted {} offender records with offenderNumber: '{}'", offenderIds.size, offenderNumber)
+    return offenderIds
   }
 
   fun setContext(context: AppModuleName?) {

@@ -13,7 +13,7 @@ import java.time.LocalDate
 class OffenderAliasPendingDeletionRepositoryTest {
 
   @Autowired
-  lateinit var repository: uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
+  lateinit var repository: OffenderAliasPendingDeletionRepository
 
   @Test
   fun `can find offender alias for pending deletion`() {
