@@ -64,6 +64,6 @@ class MessageHelper {
 }
 
 infix fun Message.andVerifyBodyContains(json: String): Message {
-  assertThat(this.body.contains(json))
+  assertThat(this.body).isEqualToIgnoringWhitespace(json)
   return this
 }

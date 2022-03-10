@@ -8,14 +8,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.andVerifyBodyContains
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.executeScripts
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -23,6 +28,9 @@ import javax.sql.DataSource
 
 @Import(DataComplianceMessageTest.TestClockConfiguration::class)
 class DataComplianceMessageTest : IntegrationTestBase() {
+
+  @SpyBean
+  lateinit var offenderDeletionRepository: OffenderDeletionRepository
 
   @TestConfiguration
   class TestClockConfiguration {
@@ -158,29 +166,17 @@ class DataComplianceMessageTest : IntegrationTestBase() {
     messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER_PROVISIONAL_DELETION_REFERRAL")
       .andVerifyBodyContains(
         """
-      {
+     {
+         "referralId":123,
          "offenderIdDisplay":"Z0020ZZ",
-         "batchId":123,
-         "firstName":"BURT",
-         "lastName":"REYNOLDS",
-         "birthDate":"1966-01-01",
-         "offenderAliases":[
-            {
-               "offenderId":-1020,
-               "bookings":[
-                  {
-                     "offenderBookId":-20,
-                     "offenceCodes":[
-                        "RC86355"
-                     ],
-                     "alertCodes":[
-                        
-                     ]
-                  }
-               ]
-            }
+         "subsequentChangesIdentified":false,
+         "offenceCodes":[
+            "RC86355"
+         ],
+         "alertCodes":[
+           
          ]
-      }
+    }
         """.trimIndent()
       )
   }
@@ -242,10 +238,16 @@ class DataComplianceMessageTest : IntegrationTestBase() {
       messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_DATA-DUPLICATE-DB-RESULT")
         .andVerifyBodyContains(
           """
-       {
-          "offenderIdDisplay":"A1234AA",
-          "retentionCheckId":123
-       }
+      {
+           "offenderIdDisplay":"A1234AA",
+           "retentionCheckId":123,
+           "duplicateOffenders":[
+              "B1234BB",
+              "C1234CC",
+              "D1234DD",
+              "E1234EE"
+           ]
+      }
           """.trimIndent()
         )
     }
@@ -280,7 +282,8 @@ class DataComplianceMessageTest : IntegrationTestBase() {
           """
        {
           "offenderIdDisplay":"A1234AA",
-          "retentionCheckId":123
+          "retentionCheckId":123,
+          "matchingTables":[]
        }
           """.trimIndent()
         )
@@ -309,105 +312,111 @@ class DataComplianceMessageTest : IntegrationTestBase() {
        {
             "offenderIdDisplay":"A1234AA",
             "retentionCheckId":123,
-            "restricted":false
+            "restricted":true
        }
           """.trimIndent()
         )
     }
   }
 
-  // @Test TODO: Find solution to hsqldb oracle transaction issue
-  fun `handle offender deletion event`() {
+  @Nested
+  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+  inner class DataDeletionTests {
 
-    requestAwsSqsClient.sendMessage(
-      messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")
-        .withMessageBody(
-          """
+    @BeforeAll
+    fun setup() {
+      doNothing().whenever(offenderDeletionRepository).setContext(any())
+    }
+
+    @Test
+    fun `handle offender deletion event`() {
+
+      requestAwsSqsClient.sendMessage(
+        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")
+          .withMessageBody(
+            """
        {
            "offenderIdDisplay":"A1234AA",
            "referralId":123,
            "offenderIds":[-1001],
            "offenderBookIds":[-1]}
        }
-          """.trimIndent()
-        )
-    )
+            """.trimIndent()
+          )
+      )
 
-    messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE")
-      .andVerifyBodyContains(
-        """
+      messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE")
+        .andVerifyBodyContains(
+          """
        {
            "offenderIdDisplay":"A1234AA",
            "referralId":123
        }
-        """.trimIndent()
-      )
-  }
+          """.trimIndent()
+        )
+    }
 
-  // @Test TODO: Find solution to hsqldb oracle transaction issue & create a deceased offender
-  fun `handle deceased offender deletion`() {
+    @Test
+    fun `handle deceased offender deletion`() {
 
-    requestAwsSqsClient.sendMessage(
-      messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
-        .withMessageBody(
-          """
+      requestAwsSqsClient.sendMessage(
+        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
+          .withMessageBody(
+            """
        {
            "batchId":987,
            "limit":10
        }
+            """.trimIndent()
+          )
+      )
+
+      messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT")
+        .andVerifyBodyContains(
+          """
+                    {
+               "batchId":987,
+               "deceasedOffenders":[
+                  {
+                     "offenderIdDisplay":"Z0023ZZ",
+                     "firstName":"RICHARD",
+                     "middleName":null,
+                     "lastName":"GRAYSON",
+                     "birthDate":"1960-01-01",
+                     "deceasedDate":null,
+                     "deletionDateTime":"2027-03-25 00:00:00",
+                     "agencyLocationId":null,
+                     "offenderAliases":[
+                        {
+                           "offenderId":-1023,
+                           "offenderBookIds":[
+                              
+                           ]
+                        }
+                     ]
+                  },
+                  {
+                     "offenderIdDisplay":"Z0017ZZ",
+                     "firstName":"MICHEAL",
+                     "middleName":null,
+                     "lastName":"PETERS",
+                     "birthDate":"1972-01-01",
+                     "deceasedDate":null,
+                     "deletionDateTime":"2027-03-25 00:00:00",
+                     "agencyLocationId":null,
+                     "offenderAliases":[
+                        {
+                           "offenderId":-1017,
+                           "offenderBookIds":[
+                              
+                           ]
+                        }
+                     ]
+                  }
+               ]
+            }
           """.trimIndent()
         )
-    )
-
-    messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-RESULT")
-      .andVerifyBodyContains(
-        """
-        {
-                 "batchId":1,
-                 "deceasedOffenders":[
-                    {
-                       "offenderIdDisplay":"Z0023ZZ",
-                       "firstName":"GRAYSON",
-                       "middleName":"RICHARD",
-                       "lastName":"GRAYSON",
-                       "birthDate":"1960-01-01",
-                       "deceasedDate":"2000-11-11",
-                       "deletionDateTime":"2000-11-11 01:01:01",
-                       "agencyLocationId":"LEI",
-                       "offenderAliases":[
-                          {
-                             "offenderId":123,
-                             "offenderBookIds":[
-                                1,
-                                2,
-                                3
-                             ]
-                          }
-                       ]
-                    }
-                    {
-                       "offenderIdDisplay":"Z0017ZZ",
-                       "firstName":"MICHEAL",
-                       "middleName":"RICHARD",
-                       "lastName":"PETERS",
-                       "birthDate":"1972-01-01",
-                       "deceasedDate":"2000-11-11",
-                       "deletionDateTime":"2000-11-11 01:01:01",
-                       "agencyLocationId":"LEI",
-                       "offenderAliases":[
-                          {
-                             "offenderId":123,
-                             "offenderBookIds":[
-                                1,
-                                2,
-                                3
-                             ]
-                          }
-                       ]
-                    }                    
-                 ]
-              }
-        """.trimIndent()
-      )
+    }
   }
 }
