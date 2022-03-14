@@ -41,7 +41,7 @@ internal class OffenderDeletionServiceTest {
       DataComplianceProperties(
         deletionEnabled = true,
         deceasedDeletionEnabled = false,
-        offenderNoBookingEnabled = false
+        offenderNoBookingDeletionEnabled = false
       ),
       offenderAliasPendingDeletionRepository,
       offenderDeletionRepository,
@@ -132,7 +132,7 @@ internal class OffenderDeletionServiceTest {
         DataComplianceProperties(
           deletionEnabled = false,
           deceasedDeletionEnabled = false,
-          offenderNoBookingEnabled = false
+          offenderNoBookingDeletionEnabled = false
         ),
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,
