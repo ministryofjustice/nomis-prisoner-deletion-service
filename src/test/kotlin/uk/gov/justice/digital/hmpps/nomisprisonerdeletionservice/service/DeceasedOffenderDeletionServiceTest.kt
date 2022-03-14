@@ -59,7 +59,7 @@ internal class DeceasedOffenderDeletionServiceTest {
       DataComplianceProperties(
         deletionEnabled = false,
         deceasedDeletionEnabled = true,
-        offenderNoBookingEnabled = false
+        offenderNoBookingDeletionEnabled = false
       ),
       clock
     )
@@ -250,7 +250,7 @@ internal class DeceasedOffenderDeletionServiceTest {
         DataComplianceProperties(
           deletionEnabled = false,
           deceasedDeletionEnabled = false,
-          offenderNoBookingEnabled = false
+          offenderNoBookingDeletionEnabled = false
         ),
         clock
       )

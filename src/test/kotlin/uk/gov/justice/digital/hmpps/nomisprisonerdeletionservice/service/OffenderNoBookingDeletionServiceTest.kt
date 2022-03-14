@@ -45,7 +45,7 @@ class OffenderNoBookingDeletionServiceTest {
       DataComplianceProperties(
         deletionEnabled = false,
         deceasedDeletionEnabled = false,
-        offenderNoBookingEnabled = true
+        offenderNoBookingDeletionEnabled = true
       )
     )
   }
@@ -118,7 +118,7 @@ class OffenderNoBookingDeletionServiceTest {
         DataComplianceProperties(
           deletionEnabled = true,
           deceasedDeletionEnabled = true,
-          offenderNoBookingEnabled = false
+          offenderNoBookingDeletionEnabled = false
         )
       )
     }
