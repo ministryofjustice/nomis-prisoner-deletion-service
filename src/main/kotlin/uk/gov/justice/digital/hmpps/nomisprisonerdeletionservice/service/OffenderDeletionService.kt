@@ -1,18 +1,18 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComplianceProperties
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.DataComplianceEventPublisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderDeletionComplete
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderAliasPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderBookingPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.deepEqualToIgnoreOrder
-import java.lang.String.valueOf
 import java.util.stream.Collectors
 
 @Service
@@ -26,7 +26,7 @@ class OffenderDeletionService(
 
   val dataComplianceEventPublisher: DataComplianceEventPublisher,
 
-  val telemetryClient: TelemetryClient
+  val applicationEventPublisher: ApplicationEventPublisher,
 ) {
   fun deleteOffender(grant: OffenderDeletionGrant) {
 
@@ -39,14 +39,7 @@ class OffenderDeletionService(
 
     dataComplianceEventPublisher.send(OffenderDeletionComplete(grant.offenderNo, grant.referralId))
 
-    telemetryClient.trackEvent(
-      "OffenderDelete",
-      mapOf(
-        "offenderNo" to grant.offenderNo,
-        "count" to valueOf(offenderIds!!.size)
-      ),
-      null
-    )
+    applicationEventPublisher.publishEvent(DeletionEvent("OffenderDelete", offenderIds, grant.offenderNo))
   }
 
   private fun checkRequestedDeletion(grant: OffenderDeletionGrant) {
