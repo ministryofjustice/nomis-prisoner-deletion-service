@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -12,6 +11,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.SQLWarningException
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComplianceProperties
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.DataComplianceEventPublisher
@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.buildOff
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.referralId
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
@@ -31,7 +32,7 @@ internal class OffenderDeletionServiceTest {
   private val offenderAliasPendingDeletionRepository = mock<OffenderAliasPendingDeletionRepository>()
   private val offenderDeletionRepository = mock<OffenderDeletionRepository>()
   private val eventPublisher = mock<DataComplianceEventPublisher>()
-  private val telemetryClient = mock<TelemetryClient>()
+  private val applicationEventPublisher = mock<ApplicationEventPublisher>()
 
   lateinit var service: OffenderDeletionService
 
@@ -46,7 +47,7 @@ internal class OffenderDeletionServiceTest {
       offenderAliasPendingDeletionRepository,
       offenderDeletionRepository,
       eventPublisher,
-      telemetryClient,
+      applicationEventPublisher,
     )
   }
 
@@ -74,13 +75,10 @@ internal class OffenderDeletionServiceTest {
     orderVerifier.verify(offenderDeletionRepository).setContext(AppModuleName.NOMIS_DELETION_SERVICE)
 
     verify(eventPublisher).send(OffenderDeletionComplete(offenderNumber1, referralId))
-    verify(telemetryClient).trackEvent(
-      "OffenderDelete",
-      mapOf(
-        "offenderNo" to offenderNumber1,
-        "count" to "1"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "OffenderDelete", setOf(offenderId1), offenderNumber1
+      )
     )
   }
 
@@ -137,7 +135,7 @@ internal class OffenderDeletionServiceTest {
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,
         eventPublisher,
-        telemetryClient,
+        applicationEventPublisher,
       )
     }
 
