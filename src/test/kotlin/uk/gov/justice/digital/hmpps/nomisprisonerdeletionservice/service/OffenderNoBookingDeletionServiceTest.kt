@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComplianceProperties
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.DataComplianceEventPublisher
@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId2
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber2
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
@@ -30,7 +31,7 @@ class OffenderNoBookingDeletionServiceTest {
   private val offenderAliasPendingDeletionRepository = mock<OffenderAliasPendingDeletionRepository>()
   private val offenderDeletionRepository = mock<OffenderDeletionRepository>()
   private val eventPublisher = mock<DataComplianceEventPublisher>()
-  private val telemetryClient = mock<TelemetryClient>()
+  private val applicationEventPublisher = mock<ApplicationEventPublisher>()
 
   lateinit var service: OffenderNoBookingDeletionService
 
@@ -41,7 +42,7 @@ class OffenderNoBookingDeletionServiceTest {
       offenderAliasPendingDeletionRepository,
       offenderDeletionRepository,
       eventPublisher,
-      telemetryClient,
+      applicationEventPublisher,
       DataComplianceProperties(
         deletionEnabled = false,
         deceasedDeletionEnabled = false,
@@ -69,10 +70,10 @@ class OffenderNoBookingDeletionServiceTest {
       .thenReturn(listOf(buildOffenderAliasPendingDeletion(offenderId2, offenderNumber2)))
 
     whenever(
-      offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber1)
+      offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber1)
     ).thenReturn(setOf(offenderId1))
 
-    whenever(offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber2))
+    whenever(offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber2))
       .thenReturn(setOf(offenderId2))
 
     service.deleteOffendersWithNoBookings(batchId, Pageable.ofSize(2))
@@ -86,21 +87,15 @@ class OffenderNoBookingDeletionServiceTest {
         )
       )
     )
-    verify(telemetryClient).trackEvent(
-      "OffenderNoBookingDelete",
-      mapOf(
-        "offenderNo" to offenderNumber1,
-        "count" to "0"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "OffenderNoBookingDelete", setOf(offenderId1), offenderNumber1
+      )
     )
-    verify(telemetryClient).trackEvent(
-      "OffenderNoBookingDelete",
-      mapOf(
-        "offenderNo" to offenderNumber2,
-        "count" to "0"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "OffenderNoBookingDelete", setOf(offenderId2), offenderNumber2
+      )
     )
   }
 
@@ -114,7 +109,7 @@ class OffenderNoBookingDeletionServiceTest {
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,
         eventPublisher,
-        telemetryClient,
+        this@OffenderNoBookingDeletionServiceTest.applicationEventPublisher,
         DataComplianceProperties(
           deletionEnabled = true,
           deceasedDeletionEnabled = true,

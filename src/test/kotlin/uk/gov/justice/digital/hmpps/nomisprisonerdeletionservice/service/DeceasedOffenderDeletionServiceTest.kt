@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -11,6 +10,7 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.SQLWarningException
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComplianceProperties
@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber2
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offendersLastMovement
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.DeceasedOffenderPendingDeletionRepository
@@ -40,7 +41,7 @@ internal class DeceasedOffenderDeletionServiceTest {
   private val offenderAliasPendingDeletionRepository = mock<OffenderAliasPendingDeletionRepository>()
   private val offenderDeletionRepository = mock<OffenderDeletionRepository>()
   private val eventPublisher = mock<DataComplianceEventPublisher>()
-  private val telemetryClient = mock<TelemetryClient>()
+  private val applicationEventPublisher = mock<ApplicationEventPublisher>()
   private val movementsService = mock<MovementsService>()
   private val deceasedOffenderPendingDeletionRepository = mock<DeceasedOffenderPendingDeletionRepository>()
   private val clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault())
@@ -53,7 +54,7 @@ internal class DeceasedOffenderDeletionServiceTest {
       offenderAliasPendingDeletionRepository,
       offenderDeletionRepository,
       eventPublisher,
-      telemetryClient,
+      applicationEventPublisher,
       movementsService,
       deceasedOffenderPendingDeletionRepository,
       DataComplianceProperties(
@@ -115,21 +116,15 @@ internal class DeceasedOffenderDeletionServiceTest {
         )
       )
     )
-    verify(telemetryClient).trackEvent(
-      "DeceasedOffenderDelete",
-      mapOf(
-        "offenderNo" to offenderNumber1,
-        "count" to "1"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "DeceasedOffenderDelete", setOf(offenderId1), offenderNumber1
+      )
     )
-    verify(telemetryClient).trackEvent(
-      "DeceasedOffenderDelete",
-      mapOf(
-        "offenderNo" to offenderNumber2,
-        "count" to "1"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "DeceasedOffenderDelete", setOf(offenderId2), offenderNumber2
+      )
     )
   }
 
@@ -183,21 +178,15 @@ internal class DeceasedOffenderDeletionServiceTest {
         )
       )
     )
-    verify(telemetryClient).trackEvent(
-      "DeceasedOffenderDelete",
-      mapOf(
-        "offenderNo" to offenderNumber1,
-        "count" to "1"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "DeceasedOffenderDelete", setOf(offenderId1), offenderNumber1
+      )
     )
-    verify(telemetryClient).trackEvent(
-      "DeceasedOffenderDelete",
-      mapOf(
-        "offenderNo" to offenderNumber2,
-        "count" to "1"
-      ),
-      null
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "DeceasedOffenderDelete", setOf(offenderId2), offenderNumber2
+      )
     )
   }
 
@@ -244,7 +233,7 @@ internal class DeceasedOffenderDeletionServiceTest {
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,
         eventPublisher,
-        telemetryClient,
+        applicationEventPublisher,
         movementsService,
         deceasedOffenderPendingDeletionRepository,
         DataComplianceProperties(

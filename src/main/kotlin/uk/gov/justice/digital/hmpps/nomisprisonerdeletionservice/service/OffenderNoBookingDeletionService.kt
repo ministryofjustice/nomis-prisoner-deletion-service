@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult.Offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult.OffenderAlias
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
@@ -25,7 +26,7 @@ class OffenderNoBookingDeletionService(
 
   val eventPublisher: DataComplianceEventPublisher,
 
-  val telemetryClient: TelemetryClient,
+  val applicationEventPublisher: ApplicationEventPublisher,
 
   val properties: DataComplianceProperties,
 ) {
@@ -34,7 +35,6 @@ class OffenderNoBookingDeletionService(
 
     check(properties.offenderNoBookingDeletionEnabled) { "Offender No bookings deletion is not enabled!" }
 
-    val telemetryLog = arrayListOf<MutableMap<String, String>>()
     var offenders: MutableList<Offender> = mutableListOf()
 
     offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(pageable)
@@ -47,11 +47,10 @@ class OffenderNoBookingDeletionService(
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber)
 
         offenders.add(buildOffender(offenderNumber, rootOffenderAlias, offenderAliases))
-        addTelemetryLog(telemetryLog, offenderNumber, offenderIds)
+        applicationEventPublisher.publishEvent(DeletionEvent("OffenderNoBookingDelete", offenderIds, offenderNumber))
       }
 
     eventPublisher.send(OffenderNoBookingDeletionResult(batchId, offenders))
-    telemetryLog.forEach { telemetryClient.trackEvent("OffenderNoBookingDelete", it, null) }
   }
 
   private fun getOffenderAliases(offenderNumber: kotlin.String): List<OffenderAliasPendingDeletion> {
@@ -68,19 +67,6 @@ class OffenderNoBookingDeletionService(
     val rootOffender: OffenderAliasPendingDeletion? = offenderAliases.find { it.offenderId == it.rootOffenderId }
     requireNotNull { "Cannot find root offender alias for '$offenderNumber'" }
     return rootOffender!!
-  }
-
-  private fun addTelemetryLog(
-    telemetryLog: ArrayList<MutableMap<String, String>>,
-    offenderNumber: String,
-    offenderIds: Set<Long>?
-  ) {
-    telemetryLog.add(
-      mutableMapOf(
-        "offenderNo" to offenderNumber,
-        "count" to offenderIds?.size.toString()
-      )
-    )
   }
 
   private fun buildOffender(

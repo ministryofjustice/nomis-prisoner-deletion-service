@@ -13,7 +13,6 @@ class DataComplianceProperties(
   @Value("\${data.compliance.offender.no.booking.deletion.enabled:false}") val offenderNoBookingDeletionEnabled: Boolean
 ) {
 
-
   init {
     log.info("Data compliance deletion enabled: {}", deletionEnabled)
     log.info("Data compliance deceased deletion enabled: {}", deceasedDeletionEnabled)

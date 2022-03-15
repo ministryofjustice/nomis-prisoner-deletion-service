@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
-import com.microsoft.applicationinsights.TelemetryClient
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult.DeceasedOffender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult.OffenderAlias
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.DeceasedOffenderPendingDeletionRepository
@@ -28,7 +29,7 @@ class DeceasedOffenderDeletionService(
 
   val eventPublisher: DataComplianceEventPublisher,
 
-  val telemetryClient: TelemetryClient,
+  val applicationEventPublisher: ApplicationEventPublisher,
 
   val movementsService: MovementsService,
 
@@ -42,7 +43,6 @@ class DeceasedOffenderDeletionService(
   fun deleteDeceasedOffenders(batchId: Long, pageable: Pageable) {
     check(properties.deceasedDeletionEnabled) { "Deceased deletion is not enabled!" }
 
-    val telemetryLog = arrayListOf<MutableMap<String, String>>()
     var deceasedOffenders: MutableList<DeceasedOffender> = mutableListOf()
 
     offenderDeletionRepository.setContext(AppModuleName.MERGE)
@@ -56,12 +56,11 @@ class DeceasedOffenderDeletionService(
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber)
 
         deceasedOffenders.add(buildDeceasedOffender(offenderNumber, rootOffenderAlias, offenderAliases))
-        addTelemetryLog(telemetryLog, offenderNumber, offenderIds)
+        applicationEventPublisher.publishEvent(DeletionEvent("DeceasedOffenderDelete", offenderIds, offenderNumber))
       }
 
     offenderDeletionRepository.setContext(AppModuleName.NOMIS_DELETION_SERVICE)
     eventPublisher.send(DeceasedOffenderDeletionResult(batchId, deceasedOffenders))
-    telemetryLog.forEach { telemetryClient.trackEvent("DeceasedOffenderDelete", it, null) }
   }
 
   private fun getOffenderAliases(offenderNumber: kotlin.String): List<OffenderAliasPendingDeletion> {
@@ -87,19 +86,6 @@ class DeceasedOffenderDeletionService(
       latestOnly = true,
       allBookings = true
     ).firstOrNull()
-  }
-
-  private fun addTelemetryLog(
-    telemetryLog: ArrayList<MutableMap<String, String>>,
-    offenderNumber: String,
-    offenderIds: Set<Long>?
-  ) {
-    telemetryLog.add(
-      mutableMapOf(
-        "offenderNo" to offenderNumber,
-        "count" to offenderIds?.size.toString()
-      )
-    )
   }
 
   private fun buildDeceasedOffender(

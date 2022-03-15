@@ -1,8 +1,10 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.e2e
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -10,9 +12,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.test.mock.mockito.MockReset
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -31,6 +35,9 @@ class DataComplianceMessageTest : IntegrationTestBase() {
 
   @SpyBean
   lateinit var offenderDeletionRepository: OffenderDeletionRepository
+
+  @SpyBean(reset = MockReset.BEFORE)
+  lateinit var telemetryClient: TelemetryClient
 
   @TestConfiguration
   class TestClockConfiguration {
@@ -321,11 +328,16 @@ class DataComplianceMessageTest : IntegrationTestBase() {
 
   @Nested
   @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-  inner class DataDeletionTests {
+  inner class DeleteOffenderData {
 
-    @BeforeAll
+    @BeforeEach
     fun setup() {
       doNothing().whenever(offenderDeletionRepository).setContext(any())
+    }
+
+    @AfterEach
+    fun afterAll() {
+      telemetryClient.flush()
     }
 
     @Test
@@ -354,6 +366,25 @@ class DataComplianceMessageTest : IntegrationTestBase() {
        }
           """.trimIndent()
         )
+
+      verify(telemetryClient).trackEvent(
+        "OffenderDelete",
+        mapOf(
+          "offenderNo" to "A1234AA",
+          "count" to "1"
+        ),
+        null
+      )
+    }
+  }
+
+  @Nested
+  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+  inner class DeleteDeceasedOffender {
+
+    @BeforeEach
+    fun setup() {
+      doNothing().whenever(offenderDeletionRepository).setContext(any())
     }
 
     @Test
@@ -417,6 +448,16 @@ class DataComplianceMessageTest : IntegrationTestBase() {
             }
           """.trimIndent()
         )
+    }
+  }
+
+  @Nested
+  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+  inner class DeleteOffenderWithNoBooking {
+
+    @BeforeEach
+    fun setup() {
+      doNothing().whenever(offenderDeletionRepository).setContext(any())
     }
 
     @Test
