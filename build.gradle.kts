@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2-beta-3"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -21,7 +21,7 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc10:19.14.0.0")
 
   runtimeOnly("org.hsqldb:hsqldb:2.6.1")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.4")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.5")
 
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -30,7 +30,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
 
-  developmentOnly("org.springframework.boot:spring-boot-devtools")
+  developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.5")
 
   testImplementation("org.testcontainers:localstack:1.16.3")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
