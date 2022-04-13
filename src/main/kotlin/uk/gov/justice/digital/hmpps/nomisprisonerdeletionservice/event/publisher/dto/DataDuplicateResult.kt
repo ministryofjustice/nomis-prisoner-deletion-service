@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publishe
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class DataDuplicateResult(
   @JsonProperty("offenderIdDisplay")
   val offenderIdDisplay: String? = null,
