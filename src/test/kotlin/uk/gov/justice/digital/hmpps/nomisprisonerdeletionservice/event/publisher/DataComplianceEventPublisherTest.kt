@@ -204,7 +204,8 @@ internal class DataComplianceEventPublisherTest {
         assertThatJson(it.messageBody).isEqualTo(
           """{
                 "offenderIdDisplay":"G0913VR",
-                "retentionCheckId":1
+                "retentionCheckId":1,
+                "duplicateOffenders":[]
              }
           """.trimIndent()
         )
@@ -228,7 +229,8 @@ internal class DataComplianceEventPublisherTest {
         assertThatJson(it.messageBody).isEqualTo(
           """{
                 "offenderIdDisplay":"G0913VR",
-                "retentionCheckId":1
+                "retentionCheckId":1,
+                "duplicateOffenders":[]
              }
           """.trimIndent()
         )

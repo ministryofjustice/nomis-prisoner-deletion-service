@@ -208,7 +208,8 @@ class DataComplianceMessageTest : IntegrationTestBase() {
         """
        {
           "offenderIdDisplay":"A1234AA",
-          "retentionCheckId":123
+          "retentionCheckId":123,
+          "duplicateOffenders":[]
        }
         """.trimIndent()
       )
