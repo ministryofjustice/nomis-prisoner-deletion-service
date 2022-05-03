@@ -30,6 +30,12 @@ data class OffenderPendingDeletion(
   @JsonProperty("lastName")
   val lastName: String? = null,
 
+  @JsonProperty("pncs")
+  val pncs: Set<String> = HashSet(),
+
+  @JsonProperty("cros")
+  val cros: Set<String> = HashSet(),
+
   @JsonProperty("birthDate")
   @JsonFormat(pattern = "yyyy-MM-dd")
   @JsonSerialize(using = LocalDateSerializer::class)
@@ -53,6 +59,9 @@ data class OffenderPendingDeletion(
   data class Booking(
     @JsonProperty("offenderBookId")
     val offenderBookId: Long? = null,
+
+    @JsonProperty("bookingNo")
+    val bookingNo: String? = null,
 
     @JsonProperty("offenceCodes")
     val offenceCodes: Set<String> = HashSet(),

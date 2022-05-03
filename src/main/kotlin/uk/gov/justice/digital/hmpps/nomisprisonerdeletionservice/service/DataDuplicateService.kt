@@ -9,12 +9,8 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.DuplicateOffender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderAliasPendingDeletion
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderIdentifierPendingDeletion
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.validation.ChecksumComponents
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.validation.getValidCroComponents
-import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.validation.getValidPncComponents
-import java.util.function.Predicate
-import java.util.stream.Stream
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.getFormattedCroNumbersFrom
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.getFormattedPncNumbersFrom
 import javax.transaction.Transactional
 
 @Service
@@ -88,14 +84,6 @@ class DataDuplicateService(
     return duplicates
   }
 
-  fun getFormattedCroNumbersFrom(offenderAliases: List<OffenderAliasPendingDeletion>): Set<String> {
-    return getIdentifiersFrom(offenderAliases, OffenderIdentifierPendingDeletion::isCro)
-      .map(::getValidCroComponents)
-      .map { formatChecksumComponentsWithNoLeadingZeros(it) }
-      .toList()
-      .toSet()
-  }
-
   fun getOffendersWithMatchingPncNumbers(
     offenderNo: String,
     offenderAliases: List<OffenderAliasPendingDeletion>
@@ -112,30 +100,6 @@ class DataDuplicateService(
       log.info("Found offender(s) ({}) with matching PNCs for offender '{}'", duplicates, offenderNo)
     }
     return duplicates
-  }
-
-  fun getFormattedPncNumbersFrom(offenderAliases: List<OffenderAliasPendingDeletion>): Set<String> {
-    return getIdentifiersFrom(offenderAliases, OffenderIdentifierPendingDeletion::isPnc)
-      .map(::getValidPncComponents)
-      .map(::formatChecksumComponentsWithNoLeadingZeros)
-      .toList()
-      .toSet()
-  }
-
-  fun formatChecksumComponentsWithNoLeadingZeros(components: ChecksumComponents?): String {
-    return components?.year.toString() + "/" + components?.serial?.toInt() + components?.checksum
-  }
-
-  fun getIdentifiersFrom(
-    offenderAliasPendingDeletions: Collection<OffenderAliasPendingDeletion>,
-    typeFilter: Predicate<OffenderIdentifierPendingDeletion>
-  ): Stream<String> {
-    return offenderAliasPendingDeletions.stream()
-      .map(OffenderAliasPendingDeletion::offenderIdentifiers)
-      .flatMap { it.stream() }
-      .filter(typeFilter)
-      .map(OffenderIdentifierPendingDeletion::identifier)
-      .map { it?.trim() }
   }
 
   fun getOffendersWithMatchingDetails(offenderNo: String): Set<String> {

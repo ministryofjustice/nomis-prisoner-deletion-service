@@ -16,6 +16,8 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.mode
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderAliasPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderBookingPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderChargePendingDeletion
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.getFormattedCroNumbersFrom
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.getFormattedPncNumbersFrom
 import java.lang.String.format
 import java.time.Clock
 import java.time.LocalDate
@@ -103,6 +105,8 @@ class ReferralService(
         lastName = it.lastName,
         birthDate = it.birthDate,
         agencyLocationId = getLatestLocationId(it.offenderNumber!!),
+        pncs = getFormattedPncNumbersFrom(offenderAliases),
+        cros = getFormattedCroNumbersFrom(offenderAliases),
         offenderAliases = offenderAliases.map { alias ->
           OffenderAlias(
             offenderId = alias.offenderId,
@@ -110,6 +114,7 @@ class ReferralService(
             { booking ->
               OffenderPendingDeletion.Booking(
                 offenderBookId = booking.bookingId,
+                bookingNo = booking.bookNumber,
                 offenceCodes = booking.offenderCharges.map { charge -> charge.offenceCode.orEmpty() }.toSet(),
                 alertCodes = booking.offenderAlerts.map { alert -> alert.alertCode }.toSet()
               )
