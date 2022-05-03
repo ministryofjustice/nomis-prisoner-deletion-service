@@ -78,6 +78,8 @@ class DataComplianceMessageTest : IntegrationTestBase() {
          "batchId":123,
          "firstName":"BURT",
          "lastName":"REYNOLDS",
+         "pncs":["99/1234567B","20/9N"],
+         "cros":["99/123456L","11/1X","99/12345M"],         
          "birthDate":"1966-01-01",
          "offenderAliases":[
             {
@@ -85,6 +87,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
                "bookings":[
                   {
                      "offenderBookId":-20,
+                     "bookingNo":"Z00020",
                      "offenceCodes":[
                         "RC86355"
                      ],
@@ -133,6 +136,8 @@ class DataComplianceMessageTest : IntegrationTestBase() {
          "batchId":123,
          "firstName":"BURT",
          "lastName":"REYNOLDS",
+         "pncs":["99/1234567B","20/9N"],
+         "cros":["99/123456L","11/1X","99/12345M"],
          "birthDate":"1966-01-01",
          "offenderAliases":[
             {
@@ -140,6 +145,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
                "bookings":[
                   {
                      "offenderBookId":-20,
+                     "bookingNo":"Z00020",
                      "offenceCodes":[
                         "RC86355"
                      ],

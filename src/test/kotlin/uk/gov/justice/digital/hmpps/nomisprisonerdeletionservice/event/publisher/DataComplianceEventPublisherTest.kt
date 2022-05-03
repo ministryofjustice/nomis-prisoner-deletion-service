@@ -64,11 +64,25 @@ internal class DataComplianceEventPublisherTest {
 
     dataComplianceEventPublisher.send(
       OffenderPendingDeletion(
-        "G0913VR", 1, "John", "Middle", "Thompson", LocalDate.of(1966, 11, 11), "LEI",
-        listOf(
+        offenderIdDisplay = "G0913VR",
+        batchId = 1,
+        firstName = "John",
+        middleName = "Middle",
+        lastName = "Thompson",
+        birthDate = LocalDate.of(1966, 11, 11),
+        cros = setOf("11/1X"),
+        agencyLocationId = "LEI",
+        offenderAliases = listOf(
           OffenderPendingDeletion.OffenderAlias(
             123,
-            listOf(OffenderPendingDeletion.Booking(1, setOf("someOffence"), setOf("someAlert")))
+            listOf(
+              OffenderPendingDeletion.Booking(
+                offenderBookId = 1,
+                bookingNo = "B07236",
+                offenceCodes = setOf("someOffence"),
+                alertCodes = setOf("someAlert")
+              )
+            )
           )
         )
       )
@@ -86,12 +100,15 @@ internal class DataComplianceEventPublisherTest {
                "lastName":"Thompson",
                "birthDate":"1966-11-11",
                "agencyLocationId":"LEI",
+               "cros":[ "11/1X" ],
+               "pncs":[],
                "offenderAliases":[
                   {
                      "offenderId":123,
                      "bookings":[
                         {
                            "offenderBookId":1,
+                           "bookingNo":"B07236",
                            "offenceCodes":[
                               "someOffence"
                            ],

@@ -16,6 +16,9 @@ data class OffenderBookingPendingDeletion(
   @Column(name = "OFFENDER_BOOK_ID")
   val bookingId: Long? = null,
 
+  @Column(name = "BOOKING_NO")
+  var bookNumber: String? = null,
+
   @ManyToOne
   @JoinColumn(name = "OFFENDER_ID", nullable = false)
   val offenderAlias: OffenderAliasPendingDeletion? = null,
