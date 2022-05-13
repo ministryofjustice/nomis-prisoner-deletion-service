@@ -18,8 +18,7 @@ data class OffenderRestrictionRequest(
   val retentionCheckId: Long? = null,
 
   @JsonProperty("restrictionCodes")
-  @field:NotNull(message = "No retention check ID specified in request")
-  @field:NotEmpty(message = "No retention check ID specified in request")
+  @field:NotEmpty(message = "No restriction codes specified in request")
   val restrictionCodes: Set<String> = HashSet(),
 
   @JsonProperty("regex")
