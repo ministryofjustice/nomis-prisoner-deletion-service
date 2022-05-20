@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.7"
   kotlin("plugin.spring") version "1.6.21"
   kotlin("plugin.jpa") version "1.6.21"
 }
@@ -30,15 +30,15 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.8")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.8")
 
-  developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
+  developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.0")
 
-  testImplementation("org.testcontainers:localstack:1.17.1")
+  testImplementation("org.testcontainers:localstack:1.17.2")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
 }
 
 java {
