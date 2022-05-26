@@ -53,9 +53,10 @@ class DeceasedOffenderDeletionService(
         val offenderAliases: List<OffenderAliasPendingDeletion> = getOffenderAliases(offenderNumber)
         val rootOffenderAlias: OffenderAliasPendingDeletion = getRootOffender(offenderNumber, offenderAliases)
 
+        val deceasedMovement = movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber))
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber)
 
-        deceasedOffenders.add(buildDeceasedOffender(offenderNumber, rootOffenderAlias, offenderAliases))
+        deceasedOffenders.add(buildDeceasedOffender(offenderNumber, rootOffenderAlias, offenderAliases, deceasedMovement))
         applicationEventPublisher.publishEvent(DeletionEvent("DeceasedOffenderDelete", offenderIds, offenderNumber))
       }
 
@@ -79,22 +80,13 @@ class DeceasedOffenderDeletionService(
     return rootOffender!!
   }
 
-  private fun getDeceasedMovement(offenderNumber: String): Movement? {
-    return movementsService.getMovementsByOffenders(
-      listOf(offenderNumber),
-      listOf("DEC"),
-      latestOnly = true,
-      allBookings = true
-    ).firstOrNull()
-  }
-
   private fun buildDeceasedOffender(
     offenderNumber: String,
     rootAlias: OffenderAliasPendingDeletion,
-    offenderAliases: List<OffenderAliasPendingDeletion>
+    offenderAliases: List<OffenderAliasPendingDeletion>,
+    deceasedMovement: Movement?
   ): DeceasedOffender {
 
-    val deceasedMovement = getDeceasedMovement(offenderNumber)
     return DeceasedOffender(
       offenderIdDisplay = offenderNumber,
       firstName = rootAlias.firstName,

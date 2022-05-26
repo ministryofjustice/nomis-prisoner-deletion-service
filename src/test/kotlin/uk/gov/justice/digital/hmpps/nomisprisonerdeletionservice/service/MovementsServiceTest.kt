@@ -53,4 +53,25 @@ class MovementsServiceTest {
     assertThat(processedMovements).hasSize(1)
     assertThat(processedMovements[0].fromAgencyDescription).isEmpty()
   }
+
+  @Test
+  fun `can get deceased movement`() {
+    val movement =
+      Movement(
+        offenderNo = offenderNumber,
+        fromAgencyDescription = "LEEDS",
+        toAgencyDescription = "BLACKBURN"
+      )
+
+    val movementsRepository: MovementsRepository = mock {
+      on {
+        getDeceasedMovementByOffenders(offenderNumbers)
+      } doReturn movement
+    }
+
+    val movementsService = MovementsService(movementsRepository)
+    val processedMovements = movementsService.getDeceasedMovementByOffenders(offenderNumbers)
+    assertThat(processedMovements?.toAgencyDescription).isEqualTo("Blackburn")
+    assertThat(processedMovements?.fromAgencyDescription).isEqualTo("Leeds")
+  }
 }

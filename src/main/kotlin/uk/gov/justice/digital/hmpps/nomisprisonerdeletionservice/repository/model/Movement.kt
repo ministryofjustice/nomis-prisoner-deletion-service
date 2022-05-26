@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.capitalize
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.formatLocation
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -45,4 +47,12 @@ data class Movement(
   val movementReason: String? = null,
 
   val commentText: String? = null
-)
+) {
+  fun formattedCopy() =
+    this.copy(
+      fromAgencyDescription = this.fromAgencyDescription?.formatLocation()?.trim() ?: "",
+      toAgencyDescription = this.toAgencyDescription?.formatLocation()?.trim() ?: "",
+      toCity = this.toCity?.trim()?.capitalize() ?: "",
+      fromCity = this.fromCity?.trim()?.capitalize() ?: "",
+    )
+}

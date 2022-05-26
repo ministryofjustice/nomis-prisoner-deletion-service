@@ -40,4 +40,17 @@ class MovementsRepositoryTest {
     val movements: List<Movement> = repository.getMovementsByOffenders(listOf("A6676RS"), listOf(), false, false)
     assertThat(movements).extracting<String>(Movement::fromAgency).containsOnly("BMI", "LEI")
   }
+
+  @Test
+  fun `can retrieve deceased movement by offenders`() {
+    val movement1: Movement? = repository.getDeceasedMovementByOffenders(listOf("Z0017ZZ"))
+    assertThat(movement1).isNotNull
+    assertThat(movement1?.fromAgency).isEqualTo("NHS014")
+    assertThat(movement1?.movementReason).isEqualTo("Died")
+
+    val movement2: Movement? = repository.getDeceasedMovementByOffenders(listOf("Z0023ZZ"))
+    assertThat(movement2).isNotNull
+    assertThat(movement2?.fromAgency).isEqualTo("NHS014")
+    assertThat(movement2?.movementReason).isEqualTo("Died")
+  }
 }

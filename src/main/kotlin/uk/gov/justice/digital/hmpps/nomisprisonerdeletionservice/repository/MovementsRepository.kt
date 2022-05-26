@@ -38,4 +38,14 @@ class MovementsRepository(val jdbcTemplate: NamedParameterJdbcOperations) {
       rowMapper
     )
   }
+
+  fun getDeceasedMovementByOffenders(offenderNumbers: List<String>,): Movement? {
+    return jdbcTemplate.query(
+      String.format(MovementsRepositorySql.GET_DECEASED_MOVEMENT_BY_OFFENDERS.sql),
+      mapOf(
+        "offenderNumbers" to offenderNumbers,
+      ),
+      rowMapper
+    ).getOrNull(0)
+  }
 }
