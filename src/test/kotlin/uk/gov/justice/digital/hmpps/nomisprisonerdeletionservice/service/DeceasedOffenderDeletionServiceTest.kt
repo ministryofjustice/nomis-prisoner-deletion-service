@@ -95,11 +95,11 @@ internal class DeceasedOffenderDeletionServiceTest {
       .thenReturn(setOf(offenderId2))
 
     whenever(
-      movementsService.getMovementsByOffenders(listOf(offenderNumber1), listOf("DEC"), true, true)
-    ).thenReturn(listOf(offendersLastMovement(offenderNumber1, clock)))
+      movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber1))
+    ).thenReturn(offendersLastMovement(offenderNumber1, clock))
 
-    whenever(movementsService.getMovementsByOffenders(listOf(offenderNumber2), listOf("DEC"), true, true)).thenReturn(
-      listOf(offendersLastMovement(offenderNumber2, clock))
+    whenever(movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber2))).thenReturn(
+      offendersLastMovement(offenderNumber2, clock)
     )
 
     service.deleteDeceasedOffenders(batchId, Pageable.ofSize(2))
@@ -157,11 +157,11 @@ internal class DeceasedOffenderDeletionServiceTest {
       .thenReturn(setOf(offenderId2))
 
     whenever(
-      movementsService.getMovementsByOffenders(listOf(offenderNumber1), listOf("DEC"), true, true)
-    ).thenReturn(emptyList())
+      movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber1))
+    ).thenReturn(null)
 
-    whenever(movementsService.getMovementsByOffenders(listOf(offenderNumber2), listOf("DEC"), true, true))
-      .thenReturn(emptyList())
+    whenever(movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber2)))
+      .thenReturn(null)
 
     service.deleteDeceasedOffenders(batchId, Pageable.ofSize(2))
 

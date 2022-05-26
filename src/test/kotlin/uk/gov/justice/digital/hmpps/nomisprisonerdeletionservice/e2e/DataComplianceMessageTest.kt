@@ -413,46 +413,46 @@ class DataComplianceMessageTest : IntegrationTestBase() {
         .andVerifyBodyContains(
           """
                     {
-               "batchId":987,
-               "deceasedOffenders":[
-                  {
-                     "offenderIdDisplay":"Z0023ZZ",
-                     "firstName":"RICHARD",
-                     "middleName":null,
-                     "lastName":"GRAYSON",
-                     "birthDate":"1960-01-01",
-                     "deceasedDate":null,
-                     "deletionDateTime":"2027-03-25 00:00:00",
-                     "agencyLocationId":null,
-                     "offenderAliases":[
-                        {
-                           "offenderId":-1023,
-                           "offenderBookIds":[
-                              
-                           ]
-                        }
-                     ]
-                  },
-                  {
-                     "offenderIdDisplay":"Z0017ZZ",
-                     "firstName":"MICHEAL",
-                     "middleName":null,
-                     "lastName":"PETERS",
-                     "birthDate":"1972-01-01",
-                     "deceasedDate":null,
-                     "deletionDateTime":"2027-03-25 00:00:00",
-                     "agencyLocationId":null,
-                     "offenderAliases":[
-                        {
-                           "offenderId":-1017,
-                           "offenderBookIds":[
-                              
-                           ]
-                        }
-                     ]
-                  }
+   "batchId":987,
+   "deceasedOffenders":[
+      {
+         "offenderIdDisplay":"Z0023ZZ",
+         "firstName":"RICHARD",
+         "middleName":null,
+         "lastName":"GRAYSON",
+         "birthDate":"1960-01-01",
+         "deceasedDate":"1988-05-01",
+         "deletionDateTime":"2027-03-25 00:00:00",
+         "agencyLocationId":"NHS014",
+         "offenderAliases":[
+            {
+               "offenderId":-1023,
+               "offenderBookIds":[
+                  
                ]
             }
+         ]
+      },
+      {
+         "offenderIdDisplay":"Z0017ZZ",
+         "firstName":"MICHEAL",
+         "middleName":null,
+         "lastName":"PETERS",
+         "birthDate":"1972-01-01",
+         "deceasedDate":"1986-05-01",
+         "deletionDateTime":"2027-03-25 00:00:00",
+         "agencyLocationId":"NHS014",
+         "offenderAliases":[
+            {
+               "offenderId":-1017,
+               "offenderBookIds":[
+                  
+               ]
+            }
+         ]
+      }
+   ]
+}
           """.trimIndent()
         )
     }
