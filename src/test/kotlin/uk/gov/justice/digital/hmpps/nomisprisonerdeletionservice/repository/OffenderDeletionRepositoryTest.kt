@@ -7,15 +7,17 @@ import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
+import org.springframework.boot.test.autoconfigure.data.jdbc.AutoConfigureDataJdbc
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.test.context.ActiveProfiles
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
 
-@ActiveProfiles("test")
-@DataJdbcTest
-class OffenderDeletionRepositoryTest {
+@Transactional
+@AutoConfigureDataJdbc
+@AutoConfigureTestDatabase
+class OffenderDeletionRepositoryTest : IntegrationTestBase() {
 
   @Autowired
   lateinit var jdbcTemplate: JdbcTemplate
@@ -31,7 +33,6 @@ class OffenderDeletionRepositoryTest {
   }
 
   @Test
-  @Transactional
   fun `cleanse offender data to base record`() {
     assertOffenderDataExists()
     assertThat(repository.cleanseOffenderDataExcludingBaseRecord("A1234AA")).containsExactly(-1001L)
@@ -41,7 +42,6 @@ class OffenderDeletionRepositoryTest {
   }
 
   @Test
-  @Transactional
   fun `cleanse offender data using unknown offender throws`() {
     Assertions.assertThatThrownBy { repository.cleanseOffenderDataExcludingBaseRecord("unknown") }
       .isInstanceOf(OffenderDeletionRepository.OffenderNotFoundException::class.java)
@@ -49,7 +49,6 @@ class OffenderDeletionRepositoryTest {
   }
 
   @Test
-  @Transactional
   fun `delete all offender data including base record`() {
     assertOffenderDataExists()
     assertThat(repository.deleteAllOffenderDataIncludingBaseRecord("A1234AA"))
@@ -59,7 +58,6 @@ class OffenderDeletionRepositoryTest {
   }
 
   @Test
-  @Transactional
   fun `delete all offender data using unknown offender throws`() {
     Assertions.assertThatThrownBy {
       repository.deleteAllOffenderDataIncludingBaseRecord(
