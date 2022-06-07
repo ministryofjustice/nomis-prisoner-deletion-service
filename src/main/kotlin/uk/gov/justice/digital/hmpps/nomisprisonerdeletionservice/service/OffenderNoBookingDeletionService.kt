@@ -14,6 +14,8 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.Offe
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderAliasPendingDeletion
+import java.time.Clock
+import java.time.LocalDateTime
 
 @Service
 @Transactional
@@ -29,6 +31,8 @@ class OffenderNoBookingDeletionService(
   val applicationEventPublisher: ApplicationEventPublisher,
 
   val properties: DataComplianceProperties,
+
+  val clock: Clock
 ) {
 
   fun deleteOffendersWithNoBookings(batchId: Long, pageable: Pageable) {
@@ -41,8 +45,8 @@ class OffenderNoBookingDeletionService(
       .forEach {
 
         val offenderNumber = it.offenderNumber
-        val offenderAliases: List<OffenderAliasPendingDeletion> = getOffenderAliases(offenderNumber)
-        val rootOffenderAlias: OffenderAliasPendingDeletion = getRootOffender(offenderNumber, offenderAliases)
+        val offenderAliases = getOffenderAliases(offenderNumber)
+        val rootOffenderAlias = getRootOffender(offenderNumber, offenderAliases)
 
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber)
 
@@ -72,7 +76,7 @@ class OffenderNoBookingDeletionService(
   private fun buildOffender(
     offenderNumber: String,
     rootAlias: OffenderAliasPendingDeletion,
-    offenderAliases: List<OffenderAliasPendingDeletion>
+    offenderAliases: List<OffenderAliasPendingDeletion>,
   ): Offender {
 
     return Offender(
@@ -81,6 +85,7 @@ class OffenderNoBookingDeletionService(
       middleName = rootAlias.middleName,
       lastName = rootAlias.lastName,
       birthDate = rootAlias.birthDate,
+      deletionDateTime = LocalDateTime.now(clock),
       offenderAliases = offenderAliases.map { alias ->
         OffenderAlias(
           offenderId = alias.offenderId,
