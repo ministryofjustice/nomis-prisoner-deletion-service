@@ -24,6 +24,9 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.Offe
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderPendingDeletion
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 
 class OffenderNoBookingDeletionServiceTest {
 
@@ -32,6 +35,7 @@ class OffenderNoBookingDeletionServiceTest {
   private val offenderDeletionRepository = mock<OffenderDeletionRepository>()
   private val eventPublisher = mock<DataComplianceEventPublisher>()
   private val applicationEventPublisher = mock<ApplicationEventPublisher>()
+  private val clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault())
 
   lateinit var service: OffenderNoBookingDeletionService
 
@@ -47,7 +51,8 @@ class OffenderNoBookingDeletionServiceTest {
         deletionEnabled = false,
         deceasedDeletionEnabled = false,
         offenderNoBookingDeletionEnabled = true
-      )
+      ),
+      clock
     )
   }
 
@@ -109,12 +114,13 @@ class OffenderNoBookingDeletionServiceTest {
         offenderAliasPendingDeletionRepository,
         offenderDeletionRepository,
         eventPublisher,
-        this@OffenderNoBookingDeletionServiceTest.applicationEventPublisher,
+        applicationEventPublisher,
         DataComplianceProperties(
           deletionEnabled = true,
           deceasedDeletionEnabled = true,
           offenderNoBookingDeletionEnabled = false
-        )
+        ),
+        clock
       )
     }
 

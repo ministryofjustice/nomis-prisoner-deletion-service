@@ -314,6 +314,7 @@ internal class DataComplianceEventPublisherTest {
         listOf(
           OffenderNoBookingDeletionResult.Offender(
             "G0913VR", "John", "Middle", "Thompson", LocalDate.of(1966, 11, 11),
+            LocalDateTime.of(2000, 11, 11, 1, 1, 1),
             listOf(
               OffenderNoBookingDeletionResult.OffenderAlias(
                 123
@@ -340,6 +341,7 @@ internal class DataComplianceEventPublisherTest {
                        "middleName":"Middle",
                        "lastName":"Thompson",
                        "birthDate":"1966-11-11",
+                       "deletionDateTime":"2000-11-11 01:01:01",
                        "offenderAliases":[
                           {
                              "offenderId":123

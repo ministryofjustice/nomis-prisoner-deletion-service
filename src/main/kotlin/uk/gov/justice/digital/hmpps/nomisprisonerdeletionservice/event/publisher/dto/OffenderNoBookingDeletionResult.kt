@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class OffenderNoBookingDeletionResult(
@@ -33,12 +35,17 @@ data class OffenderNoBookingDeletionResult(
     @JsonSerialize(using = LocalDateSerializer::class)
     val birthDate: LocalDate? = null,
 
+    @JsonProperty("deletionDateTime")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer::class)
+    val deletionDateTime: LocalDateTime? = null,
+
     @JsonProperty("offenderAliases")
     val offenderAliases: List<OffenderAlias>? = emptyList()
   )
 
   data class OffenderAlias(
     @JsonProperty("offenderId")
-    val offenderId: Long? = null,
+    val offenderId: Long? = null
   )
 }

@@ -485,7 +485,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
       messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT")
         .andVerifyBodyContains(
           """
-           {
+          {
              "batchId":987,
              "offenders":[
                 {
@@ -494,6 +494,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
                    "middleName":null,
                    "lastName":"THOMSON",
                    "birthDate":"1980-01-02",
+                   "deletionDateTime":"2027-03-25 00:00:00",
                    "offenderAliases":[
                       {
                          "offenderId":-1096
@@ -506,6 +507,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
                    "middleName":null,
                    "lastName":"SMITH",
                    "birthDate":"1998-11-01",
+                   "deletionDateTime":"2027-03-25 00:00:00",
                    "offenderAliases":[
                       {
                          "offenderId":-1092
@@ -527,30 +529,32 @@ class DataComplianceMessageTest : IntegrationTestBase() {
                    "middleName":null,
                    "lastName":"JONES",
                    "birthDate":"1961-01-01",
+                   "deletionDateTime":"2027-03-25 00:00:00",
                    "offenderAliases":[
                       {
                          "offenderId":-1059
                       }
                    ]
                 },
-                                {
-                                   "offenderIdDisplay":"A1234DD",
-                                   "firstName":"JOHN",
-                                   "middleName":null,
-                                   "lastName":"DOE",
-                                   "birthDate":"1989-03-02",
-                                   "offenderAliases":[
-                                      {
-                                         "offenderId":-1056
-                                      },
-                                      {
-                                         "offenderId":-1057
-                                      },
-                                      {
-                                         "offenderId":-1058
-                                      }
-                                   ]
-                                }
+                {
+                   "offenderIdDisplay":"A1234DD",
+                   "firstName":"JOHN",
+                   "middleName":null,
+                   "lastName":"DOE",
+                   "birthDate":"1989-03-02",
+                   "deletionDateTime":"2027-03-25 00:00:00",
+                   "offenderAliases":[
+                      {
+                         "offenderId":-1056
+                      },
+                      {
+                         "offenderId":-1057
+                      },
+                      {
+                         "offenderId":-1058
+                      }
+                   ]
+                }
              ]
           }
           """.trimIndent()

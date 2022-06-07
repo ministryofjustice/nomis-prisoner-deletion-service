@@ -98,7 +98,8 @@ fun buildOffender(
   offenderNumber: String,
   firstName: String = "Tom",
   middleName: String = "Williamson",
-  lastName: String = "Jones"
+  lastName: String = "Jones",
+  clock: Clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault())
 ): OffenderNoBookingDeletionResult.Offender {
   return OffenderNoBookingDeletionResult.Offender(
     offenderIdDisplay = offenderNumber,
@@ -112,6 +113,7 @@ fun buildOffender(
         offenderId = offenderId,
       )
     ),
+    deletionDateTime = LocalDateTime.now(clock)
   )
 }
 
