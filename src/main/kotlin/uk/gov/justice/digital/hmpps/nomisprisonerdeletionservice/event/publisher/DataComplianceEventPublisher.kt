@@ -83,7 +83,7 @@ class DataComplianceEventPublisher(
 
   fun send(event: OffenderNoBookingDeletionResult) {
     log.info("Sending offenders with no bookings deletion result for batch: {}", event.batchId)
-    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT", event))
+    responseSqsClient.sendMessage(generateRequest("DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-RESULT", event))
   }
 
   fun generateRequest(eventType: String, messageBody: Any): SendMessageRequest? {
