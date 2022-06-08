@@ -329,7 +329,7 @@ internal class DataComplianceEventPublisherTest {
       check {
 
         assertThat(it.messageAttributes.getValue("eventType").toString())
-          .contains("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT")
+          .contains("DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-RESULT")
 
         assertThatJson(it.messageBody).isEqualTo(
           """{

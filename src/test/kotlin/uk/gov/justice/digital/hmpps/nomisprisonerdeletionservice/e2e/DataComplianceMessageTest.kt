@@ -482,7 +482,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
           )
       )
 
-      messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-RESULT")
+      messageHelper.verifyAtLeastOneResponseOfEventType("DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-RESULT")
         .andVerifyBodyContains(
           """
           {
