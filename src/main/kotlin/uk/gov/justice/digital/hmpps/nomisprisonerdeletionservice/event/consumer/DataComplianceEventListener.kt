@@ -52,6 +52,7 @@ final class DataComplianceEventListener(
   fun handleEvent(message: Message<String>) {
     val eventType = getEventType(message.headers)
     log.info("Handling incoming data compliance event of type: {}", eventType)
+    check(messageHandlers.containsKey(eventType)) { "Invalid event type provided: $eventType" }
     messageHandlers[eventType]?.invoke(message)
   }
 
