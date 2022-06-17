@@ -159,7 +159,7 @@ final class DataComplianceEventListener(
     "DATA_COMPLIANCE_OFFENDER-RESTRICTION-CHECK" to this::handleOffenderRestrictionCheck,
     "DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED" to this::handleDeletionGranted,
     "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST" to this::handleDeceasedOffenderDeletionRequest,
-    "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST" to this::handleNoBookingOffenderDeletionRequest
+    "DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST" to this::handleNoBookingOffenderDeletionRequest
   )
 
   private fun <T> parseEvent(requestJson: String, eventType: Class<T>): T {

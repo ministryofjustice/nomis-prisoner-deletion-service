@@ -614,7 +614,7 @@ internal class DataComplianceEventListenerTest {
         {"batchId":987,
         "limit":10}
       """.trimIndent(),
-      mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
+      mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST")
     )
     verify(offenderNoBookingDeletionService).deleteOffendersWithNoBookings(987L, PageRequest.of(0, 10))
   }
@@ -626,7 +626,7 @@ internal class DataComplianceEventListenerTest {
         """
           {"limit":10}
         """.trimIndent(),
-        mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
+        mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST")
       )
     }
       .isInstanceOf(ConstraintViolationException::class.java)
