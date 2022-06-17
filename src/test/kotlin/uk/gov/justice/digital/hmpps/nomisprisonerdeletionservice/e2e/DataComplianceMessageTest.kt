@@ -471,7 +471,7 @@ class DataComplianceMessageTest : IntegrationTestBase() {
     fun `handle offender no booking deletion`() {
 
       requestAwsSqsClient.sendMessage(
-        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-NO_BOOKING-DELETION-REQUEST")
+        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST")
           .withMessageBody(
             """
        {
