@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -35,29 +36,36 @@ class OffenderNoBookingDeletionService(
   val clock: Clock
 ) {
 
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
   fun deleteOffendersWithNoBookings(batchId: Long, pageable: Pageable) {
 
     check(properties.offenderNoBookingDeletionEnabled) { "Offender No bookings deletion is not enabled!" }
 
     var offenders: MutableList<Offender> = mutableListOf()
 
-    offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(pageable)
+    offendersWithNoBookings(pageable)
       .forEach {
+        val (offenderNumber, offenderAliases) = it
 
-        val offenderNumber = it.offenderNumber
-        val offenderAliases = getOffenderAliases(offenderNumber)
+        log.info("Offender with no bookings {} has been identified for deletion", offenderNumber)
         val rootOffenderAlias = getRootOffender(offenderNumber, offenderAliases)
-
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber)
-
         offenders.add(buildOffender(offenderNumber, rootOffenderAlias, offenderAliases))
         applicationEventPublisher.publishEvent(DeletionEvent("OffenderNoBookingDelete", offenderIds, offenderNumber))
       }
 
-    eventPublisher.send(OffenderNoBookingDeletionResult(batchId, offenders))
+    if (offenders.isNotEmpty()) eventPublisher.send(OffenderNoBookingDeletionResult(batchId, offenders))
   }
 
-  private fun getOffenderAliases(offenderNumber: kotlin.String): List<OffenderAliasPendingDeletion> {
+  private fun offendersWithNoBookings(pageable: Pageable) =
+    offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(pageable)
+      .map { it.offenderNumber to getOffenderAliases(it.offenderNumber) }
+      .filter { it.second.all { aliasPendingDeletion -> aliasPendingDeletion.offenderBookings.isEmpty() } }
+
+  private fun getOffenderAliases(offenderNumber: String): List<OffenderAliasPendingDeletion> {
     val offenderAliases =
       offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber)
     check(offenderAliases.isNotEmpty()) { "Offender not found: '$offenderNumber'" }
@@ -69,8 +77,7 @@ class OffenderNoBookingDeletionService(
     offenderAliases: List<OffenderAliasPendingDeletion>
   ): OffenderAliasPendingDeletion {
     val rootOffender: OffenderAliasPendingDeletion? = offenderAliases.find { it.offenderId == it.rootOffenderId }
-    requireNotNull { "Cannot find root offender alias for '$offenderNumber'" }
-    return rootOffender!!
+    return requireNotNull(rootOffender) { "Cannot find root offender alias for '$offenderNumber'" }
   }
 
   private fun buildOffender(

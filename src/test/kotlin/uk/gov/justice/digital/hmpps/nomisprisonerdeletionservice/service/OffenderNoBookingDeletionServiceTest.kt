@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
@@ -69,10 +70,26 @@ class OffenderNoBookingDeletionServiceTest {
     )
 
     whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber1))
-      .thenReturn(listOf(buildOffenderAliasPendingDeletion(offenderId1, offenderNumber1)))
+      .thenReturn(
+        listOf(
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId1,
+            offenderNumber = offenderNumber1,
+            hasBooking = false
+          )
+        )
+      )
 
     whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber2))
-      .thenReturn(listOf(buildOffenderAliasPendingDeletion(offenderId2, offenderNumber2)))
+      .thenReturn(
+        listOf(
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId2,
+            offenderNumber = offenderNumber2,
+            hasBooking = false
+          )
+        )
+      )
 
     whenever(
       offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber1)
@@ -102,6 +119,70 @@ class OffenderNoBookingDeletionServiceTest {
         "OffenderNoBookingDelete", setOf(offenderId2), offenderNumber2
       )
     )
+  }
+
+  @Test
+  fun `delete offenders with no bookings excludes offenders with alias bookings`() {
+
+    whenever(
+      offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(Pageable.ofSize(2))
+    ).thenReturn(
+      listOf(
+        OffenderPendingDeletion(offenderNumber1),
+        OffenderPendingDeletion(offenderNumber2)
+      )
+    )
+
+    whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber1))
+      .thenReturn(
+        listOf(
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId1,
+            offenderNumber = offenderNumber1,
+            hasBooking = false
+          )
+        )
+      )
+
+    whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber2))
+      .thenReturn(
+        listOf(
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId2,
+            offenderNumber = offenderNumber2,
+            hasBooking = false
+          ),
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId2,
+            offenderNumber = offenderNumber2,
+            hasBooking = true
+          )
+        )
+      )
+
+    whenever(
+      offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber1)
+    ).thenReturn(setOf(offenderId1))
+
+    service.deleteOffendersWithNoBookings(batchId, Pageable.ofSize(2))
+
+    verify(eventPublisher).send(
+      OffenderNoBookingDeletionResult(
+        batchId = batchId,
+        offenders = listOf(
+          buildOffender(offenderId1, offenderNumber1),
+        )
+      )
+    )
+
+    verifyNoMoreInteractions(eventPublisher)
+
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        "OffenderNoBookingDelete", setOf(offenderId1), offenderNumber1
+      )
+    )
+    verifyNoMoreInteractions(applicationEventPublisher)
   }
 
   @Nested

@@ -23,24 +23,27 @@ fun buildOffenderAliasPendingDeletion(
   offenderNumber: String,
   firstName: String = "Tom",
   middleName: String = "Williamson",
-  lastName: String = "Jones"
+  lastName: String = "Jones",
+  hasBooking: Boolean = true,
 ): OffenderAliasPendingDeletion {
   return OffenderAliasPendingDeletion(
     offenderId, offenderNumber, offenderId, firstName, middleName, lastName, LocalDate.of(1993, 11, 12)
   ).also {
-    it.offenderBookings = listOf(
-      OffenderBookingPendingDeletion(
-        bookingId = it.offenderId,
-        offenderCharges = listOf(
-          OffenderChargePendingDeletion(
-            offenceCode = "offence$offenderId",
-            offenderChargeId = 324L,
-            offenderBooking = OffenderBookingPendingDeletion()
-          )
-        ),
-        offenderAlerts = listOf(OffenderAlertPendingDeletion().also { it.alertCode = "alert$offenderId" })
+    if (hasBooking) {
+      it.offenderBookings = listOf(
+        OffenderBookingPendingDeletion(
+          bookingId = it.offenderId,
+          offenderCharges = listOf(
+            OffenderChargePendingDeletion(
+              offenceCode = "offence$offenderId",
+              offenderChargeId = 324L,
+              offenderBooking = OffenderBookingPendingDeletion()
+            )
+          ),
+          offenderAlerts = listOf(OffenderAlertPendingDeletion().also { it.alertCode = "alert$offenderId" })
+        )
       )
-    )
+    }
   }
 }
 
