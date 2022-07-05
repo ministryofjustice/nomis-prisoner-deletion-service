@@ -21,13 +21,14 @@ import java.time.ZoneId
 fun buildOffenderAliasPendingDeletion(
   offenderId: Long,
   offenderNumber: String,
+  rootOffenderId: Long = offenderId,
   firstName: String = "Tom",
   middleName: String = "Williamson",
   lastName: String = "Jones",
   hasBooking: Boolean = true,
 ): OffenderAliasPendingDeletion {
   return OffenderAliasPendingDeletion(
-    offenderId, offenderNumber, offenderId, firstName, middleName, lastName, LocalDate.of(1993, 11, 12)
+    offenderId, offenderNumber, rootOffenderId, firstName, middleName, lastName, LocalDate.of(1993, 11, 12)
   ).also {
     if (hasBooking) {
       it.offenderBookings = listOf(
@@ -179,26 +180,29 @@ fun expectedReferralCompleteEvent(
   return OffenderPendingDeletionReferralComplete(batchId, numberReferred, totalInWindow)
 }
 
-val batchId = 123L
 val windowStart = LocalDate.now()
 val windowEnd = windowStart.plusDays(1)
 val pageRequest = PageRequest.of(0, 2)
-val totalInWindow: Long = 10
-val offenderNumber1 = "A1234AA"
-val offenderNumber2 = "B4321BB"
-val offenderId1 = 2L
-val offenderId2 = 9L
-val referralId = 123L
-val bookingId = 2L
-val offenderPnc = "1999/0123456X"
-val formattedOffenderPnc = "99/123456X"
-val offenderCro = "000001/11X"
-val formattedOffenderCro = "11/1X"
-val offenderSentConditionId = 1109L
-val duplicate1 = "B1234BB"
-val duplicate2 = "C1234CC"
-val duplicate3 = "D1234DD"
-val retentionCheckId = 123L
-val regex = "^(some|regex)$"
-val matchingTable1 = "table1"
-val matchingTable2 = "table2"
+
+const val batchId = 123L
+const val totalInWindow: Long = 10
+const val offenderNumber1 = "A1234AA"
+const val offenderNumber2 = "B4321BB"
+const val offenderNumber3 = "C4361CC"
+const val offenderId1 = 2L
+const val offenderId2 = 9L
+const val offenderId3 = 99L
+const val referralId = 123L
+const val bookingId = 2L
+const val offenderPnc = "1999/0123456X"
+const val formattedOffenderPnc = "99/123456X"
+const val offenderCro = "000001/11X"
+const val formattedOffenderCro = "11/1X"
+const val offenderSentConditionId = 1109L
+const val duplicate1 = "B1234BB"
+const val duplicate2 = "C1234CC"
+const val duplicate3 = "D1234DD"
+const val retentionCheckId = 123L
+const val regex = "^(some|regex)$"
+const val matchingTable1 = "table1"
+const val matchingTable2 = "table2"

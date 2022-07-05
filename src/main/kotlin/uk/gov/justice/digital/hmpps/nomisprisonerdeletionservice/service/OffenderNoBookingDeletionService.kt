@@ -51,9 +51,10 @@ class OffenderNoBookingDeletionService(
         val (offenderNumber, offenderAliases) = it
 
         log.info("Offender with no bookings {} has been identified for deletion", offenderNumber)
-        val rootOffenderAlias = getRootOffender(offenderNumber, offenderAliases)
+        val offenderAlias =
+          requireNotNull(offenderAliases.find { alias -> alias.offenderNumber == offenderNumber }) { "Cannot find offender alias for '$offenderNumber'" }
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber)
-        offenders.add(buildOffender(offenderNumber, rootOffenderAlias, offenderAliases))
+        offenders.add(buildOffender(offenderNumber, offenderAlias, offenderAliases))
         applicationEventPublisher.publishEvent(DeletionEvent("OffenderNoBookingDelete", offenderIds, offenderNumber))
       }
 
@@ -72,30 +73,22 @@ class OffenderNoBookingDeletionService(
     return offenderAliases
   }
 
-  private fun getRootOffender(
-    offenderNumber: String,
-    offenderAliases: List<OffenderAliasPendingDeletion>
-  ): OffenderAliasPendingDeletion {
-    val rootOffender: OffenderAliasPendingDeletion? = offenderAliases.find { it.offenderId == it.rootOffenderId }
-    return requireNotNull(rootOffender) { "Cannot find root offender alias for '$offenderNumber'" }
-  }
-
   private fun buildOffender(
     offenderNumber: String,
-    rootAlias: OffenderAliasPendingDeletion,
+    alias: OffenderAliasPendingDeletion,
     offenderAliases: List<OffenderAliasPendingDeletion>,
   ): Offender {
 
     return Offender(
       offenderIdDisplay = offenderNumber,
-      firstName = rootAlias.firstName,
-      middleName = rootAlias.middleName,
-      lastName = rootAlias.lastName,
-      birthDate = rootAlias.birthDate,
+      firstName = alias.firstName,
+      middleName = alias.middleName,
+      lastName = alias.lastName,
+      birthDate = alias.birthDate,
       deletionDateTime = LocalDateTime.now(clock),
-      offenderAliases = offenderAliases.map { alias ->
+      offenderAliases = offenderAliases.map {
         OffenderAlias(
-          offenderId = alias.offenderId,
+          offenderId = it.offenderId,
         )
       },
     )

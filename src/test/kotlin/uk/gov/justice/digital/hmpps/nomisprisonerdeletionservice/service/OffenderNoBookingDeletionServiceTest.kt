@@ -18,8 +18,10 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.buildOff
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.buildOffenderAliasPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId2
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId3
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber2
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber3
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
@@ -150,12 +152,14 @@ class OffenderNoBookingDeletionServiceTest {
           buildOffenderAliasPendingDeletion(
             offenderId = offenderId2,
             offenderNumber = offenderNumber2,
-            hasBooking = false
+            hasBooking = false,
+            rootOffenderId = offenderId2
           ),
           buildOffenderAliasPendingDeletion(
-            offenderId = offenderId2,
-            offenderNumber = offenderNumber2,
-            hasBooking = true
+            offenderId = offenderId3,
+            offenderNumber = offenderNumber3,
+            hasBooking = true,
+            rootOffenderId = offenderId2
           )
         )
       )
