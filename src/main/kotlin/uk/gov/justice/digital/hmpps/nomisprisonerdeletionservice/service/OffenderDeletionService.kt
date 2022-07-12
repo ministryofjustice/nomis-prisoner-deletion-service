@@ -7,12 +7,15 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComp
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.DataComplianceEventPublisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderDeletionComplete
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderAliasPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderBookingPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.utils.deepEqualToIgnoreOrder
+import java.time.Clock
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @Service
@@ -27,6 +30,8 @@ class OffenderDeletionService(
   val dataComplianceEventPublisher: DataComplianceEventPublisher,
 
   val applicationEventPublisher: ApplicationEventPublisher,
+
+  val clock: Clock
 ) {
   fun deleteOffender(grant: OffenderDeletionGrant) {
 
@@ -39,7 +44,7 @@ class OffenderDeletionService(
 
     dataComplianceEventPublisher.send(OffenderDeletionComplete(grant.offenderNo, grant.referralId))
 
-    applicationEventPublisher.publishEvent(DeletionEvent("OffenderDelete", offenderIds, grant.offenderNo))
+    applicationEventPublisher.publishEvent(DeletionEvent(Event.OFFENDER_DELETION, offenderIds, grant.offenderNo, grant.referralId, LocalDateTime.now(clock)))
   }
 
   private fun checkRequestedDeletion(grant: OffenderDeletionGrant) {

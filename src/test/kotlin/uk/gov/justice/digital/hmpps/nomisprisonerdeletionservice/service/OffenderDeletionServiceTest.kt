@@ -16,16 +16,22 @@ import org.springframework.jdbc.SQLWarningException
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.config.DataComplianceProperties
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.DataComplianceEventPublisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderDeletionComplete
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.batchId
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.bookingId
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.buildOffenderAliasPendingDeletion
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderId1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.referralId
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import java.sql.SQLWarning
+import java.time.Clock
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 internal class OffenderDeletionServiceTest {
 
@@ -33,6 +39,7 @@ internal class OffenderDeletionServiceTest {
   private val offenderDeletionRepository = mock<OffenderDeletionRepository>()
   private val eventPublisher = mock<DataComplianceEventPublisher>()
   private val applicationEventPublisher = mock<ApplicationEventPublisher>()
+  private val clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault())
 
   lateinit var service: OffenderDeletionService
 
@@ -48,6 +55,7 @@ internal class OffenderDeletionServiceTest {
       offenderDeletionRepository,
       eventPublisher,
       applicationEventPublisher,
+      clock
     )
   }
 
@@ -77,7 +85,7 @@ internal class OffenderDeletionServiceTest {
     verify(eventPublisher).send(OffenderDeletionComplete(offenderNumber1, referralId))
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "OffenderDelete", setOf(offenderId1), offenderNumber1
+        Event.OFFENDER_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
   }
@@ -136,6 +144,7 @@ internal class OffenderDeletionServiceTest {
         offenderDeletionRepository,
         eventPublisher,
         applicationEventPublisher,
+        clock
       )
     }
 

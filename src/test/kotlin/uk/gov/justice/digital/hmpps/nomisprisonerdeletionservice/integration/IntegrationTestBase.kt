@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
@@ -18,6 +19,8 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.tes
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.testcontainer.LocalStackContainer.setLocalStackProperties
 import uk.gov.justice.hmpps.sqs.HmppsQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.HmppsSqsProperties
+import uk.gov.justice.hmpps.sqs.MissingTopicException
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -32,6 +35,9 @@ abstract class IntegrationTestBase {
 
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
+
+  @SpyBean
+  protected lateinit var hmppsSqsPropertiesSpy: HmppsSqsProperties
 
   @Autowired
   lateinit var messageHelper: MessageHelper
@@ -67,6 +73,9 @@ abstract class IntegrationTestBase {
     user: String = "AUTH_ADM",
     roles: List<String> = listOf()
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles)
+
+  fun HmppsSqsProperties.domaineventsTopicConfig() =
+    topics["domainevents"] ?: throw MissingTopicException("domainevents has not been loaded from configuration properties")
 
   fun getNumberOfMessagesCurrentlyOnRequestQueue(): Int? {
     val queueAttributes = requestAwsSqsClient.getQueueAttributes(requestQueueUrl, listOf("ApproximateNumberOfMessages"))

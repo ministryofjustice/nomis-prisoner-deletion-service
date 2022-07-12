@@ -21,12 +21,14 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber1
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber2
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.model.OffenderPendingDeletion
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 class OffenderNoBookingDeletionServiceTest {
@@ -111,12 +113,12 @@ class OffenderNoBookingDeletionServiceTest {
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "OffenderNoBookingDelete", setOf(offenderId1), offenderNumber1
+        Event.OFFENDER_NO_BOOKING_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "OffenderNoBookingDelete", setOf(offenderId2), offenderNumber2
+        Event.OFFENDER_NO_BOOKING_DELETION, setOf(offenderId2), offenderNumber2, batchId, LocalDateTime.now(clock)
       )
     )
   }
@@ -179,7 +181,7 @@ class OffenderNoBookingDeletionServiceTest {
 
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "OffenderNoBookingDelete", setOf(offenderId1), offenderNumber1
+        Event.OFFENDER_NO_BOOKING_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
     verifyNoMoreInteractions(applicationEventPublisher)

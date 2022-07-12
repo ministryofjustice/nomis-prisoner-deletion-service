@@ -33,6 +33,12 @@ class MessageHelper {
     return responseMessages[0]
   }
 
+  fun verifyNoMessagesSentOfEventType(eventType: String?) {
+    updateMessages()
+    val responseMessages = messages.filter { m: Message -> isMatch(eventType, m) }
+    assertThat(responseMessages).hasSize(0)
+  }
+
   fun requestMessageWithEventType(eventType: String): SendMessageRequest {
     return SendMessageRequest().withQueueUrl(requestQueueUrl)
       .withMessageAttributes(

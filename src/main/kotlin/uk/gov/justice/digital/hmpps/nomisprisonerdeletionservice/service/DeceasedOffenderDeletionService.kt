@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult.DeceasedOffender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.DeceasedOffenderDeletionResult.OffenderAlias
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.DeceasedOffenderPendingDeletionRepository
@@ -57,7 +58,15 @@ class DeceasedOffenderDeletionService(
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber)
 
         deceasedOffenders.add(buildDeceasedOffender(offenderNumber, rootOffenderAlias, offenderAliases, deceasedMovement))
-        applicationEventPublisher.publishEvent(DeletionEvent("DeceasedOffenderDelete", offenderIds, offenderNumber))
+        applicationEventPublisher.publishEvent(
+          DeletionEvent(
+            Event.DECEASED_OFFENDER_DELETION,
+            offenderIds,
+            offenderNumber,
+            batchId,
+            LocalDateTime.now(clock)
+          )
+        )
       }
 
     offenderDeletionRepository.setContext(AppModuleName.NOMIS_DELETION_SERVICE)

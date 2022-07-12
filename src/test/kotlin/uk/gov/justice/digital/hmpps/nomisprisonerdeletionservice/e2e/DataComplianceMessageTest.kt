@@ -12,7 +12,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -21,12 +23,14 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.sns.SnsPublisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.andVerifyBodyContains
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.executeScripts
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.sql.DataSource
 
@@ -38,6 +42,9 @@ class DataComplianceMessageTest : IntegrationTestBase() {
 
   @SpyBean(reset = MockReset.BEFORE)
   lateinit var telemetryClient: TelemetryClient
+
+  @SpyBean(reset = MockReset.BEFORE)
+  lateinit var snsPublisher: SnsPublisher
 
   @TestConfiguration
   class TestClockConfiguration {
@@ -340,6 +347,8 @@ class DataComplianceMessageTest : IntegrationTestBase() {
     @BeforeEach
     fun setup() {
       doNothing().whenever(offenderDeletionRepository).setContext(any())
+      reset(telemetryClient)
+      reset(snsPublisher)
     }
 
     @AfterEach
@@ -382,6 +391,40 @@ class DataComplianceMessageTest : IntegrationTestBase() {
         ),
         null
       )
+
+      verify(snsPublisher).sendOffenderDeletionEvent(
+        "gdpr-data-compliance.offender.deleted",
+        "This offender's data has been deleted with exception to the 'Base Record' from NOMIS",
+        "A1234AA",
+        setOf(-1001L),
+        123L,
+        LocalDateTime.of(2027, 3, 25, 0, 0)
+      )
+    }
+
+    @Test
+    fun `handle offender deletion event when the transaction is not committed`() {
+
+      whenever(offenderDeletionRepository.cleanseOffenderDataExcludingBaseRecord("A1234AA")).thenThrow(RuntimeException("some exception"))
+
+      requestAwsSqsClient.sendMessage(
+        messageHelper.requestMessageWithEventType("DATA_COMPLIANCE_OFFENDER-DELETION-GRANTED")
+          .withMessageBody(
+            """
+       {
+           "offenderIdDisplay":"A1234AA",
+           "referralId":123,
+           "offenderIds":[-1001],
+           "offenderBookIds":[-1]}
+       }
+            """.trimIndent()
+          )
+      )
+
+      messageHelper.verifyNoMessagesSentOfEventType("DATA_COMPLIANCE_OFFENDER-DELETION-COMPLETE")
+
+      verifyNoInteractions(telemetryClient)
+      verifyNoInteractions(snsPublisher)
     }
   }
 

@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offenderNumber2
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.helper.offendersLastMovement
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.connection.AppModuleName
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.DeceasedOffenderPendingDeletionRepository
@@ -34,6 +35,7 @@ import java.sql.SQLWarning
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal class DeceasedOffenderDeletionServiceTest {
@@ -118,12 +120,12 @@ internal class DeceasedOffenderDeletionServiceTest {
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "DeceasedOffenderDelete", setOf(offenderId1), offenderNumber1
+        Event.DECEASED_OFFENDER_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "DeceasedOffenderDelete", setOf(offenderId2), offenderNumber2
+        Event.DECEASED_OFFENDER_DELETION, setOf(offenderId2), offenderNumber2, batchId, LocalDateTime.now(clock)
       )
     )
   }
@@ -180,12 +182,12 @@ internal class DeceasedOffenderDeletionServiceTest {
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "DeceasedOffenderDelete", setOf(offenderId1), offenderNumber1
+        Event.DECEASED_OFFENDER_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
     verify(applicationEventPublisher).publishEvent(
       DeletionEvent(
-        "DeceasedOffenderDelete", setOf(offenderId2), offenderNumber2
+        Event.DECEASED_OFFENDER_DELETION, setOf(offenderId2), offenderNumber2, batchId, LocalDateTime.now(clock)
       )
     )
   }
