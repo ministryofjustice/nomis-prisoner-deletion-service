@@ -47,6 +47,8 @@ hmpps.sqs:
   topics:
     datacomplianceevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    domainevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
 
 logging:
   level:

@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult.Offender
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.event.publisher.dto.OffenderNoBookingDeletionResult.OffenderAlias
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.DeletionEvent
+import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.logging.Event
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.OffenderDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderAliasPendingDeletionRepository
 import uk.gov.justice.digital.hmpps.nomisprisonerdeletionservice.repository.jpa.OffenderNoBookingPendingDeletionRepository
@@ -54,7 +55,15 @@ class OffenderNoBookingDeletionService(
         val rootOffenderAlias = getRootOffender(offenderNumber, offenderAliases)
         val offenderIds = offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber)
         offenders.add(buildOffender(offenderNumber, rootOffenderAlias, offenderAliases))
-        applicationEventPublisher.publishEvent(DeletionEvent("OffenderNoBookingDelete", offenderIds, offenderNumber))
+        applicationEventPublisher.publishEvent(
+          DeletionEvent(
+            Event.OFFENDER_NO_BOOKING_DELETION,
+            offenderIds,
+            offenderNumber,
+            batchId,
+            LocalDateTime.now(clock)
+          )
+        )
       }
 
     if (offenders.isNotEmpty()) eventPublisher.send(OffenderNoBookingDeletionResult(batchId, offenders))

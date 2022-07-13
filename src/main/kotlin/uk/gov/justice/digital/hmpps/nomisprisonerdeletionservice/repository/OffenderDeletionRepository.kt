@@ -201,7 +201,7 @@ class OffenderDeletionRepository(
    *
    * @return Set of offender_ids of the deleted offender aliases.
    */
-  fun cleanseOffenderDataExcludingBaseRecord(offenderNumber: String): Set<Long>? {
+  fun cleanseOffenderDataExcludingBaseRecord(offenderNumber: String): Set<Long> {
     log.info("Cleaning data for offender: '{}'", offenderNumber)
     val offenderIds = offenderIdsFor(offenderNumber)
     if (offenderIds.isEmpty()) {
@@ -227,7 +227,7 @@ class OffenderDeletionRepository(
    *
    * @return Set of offender_ids of the deleted offender aliases.
    */
-  fun deleteAllOffenderDataIncludingBaseRecord(offenderNumber: String): Set<Long>? {
+  fun deleteAllOffenderDataIncludingBaseRecord(offenderNumber: String): Set<Long> {
     log.info("Deleting all data for offender: '{}'", offenderNumber)
     val offenderIds = offenderIdsFor(offenderNumber)
     if (offenderIds.isEmpty()) {
@@ -282,7 +282,7 @@ class OffenderDeletionRepository(
     }
   }
 
-  fun deleteAllOffenderDataExcludingBookings(offenderNumber: String): Set<Long>? {
+  fun deleteAllOffenderDataExcludingBookings(offenderNumber: String): Set<Long> {
     log.info("Deleting all offender data for offender: '{}'", offenderNumber)
     val offenderIds = offenderIdsFor(offenderNumber)
     if (offenderIds.isEmpty()) { throw OffenderNotFoundException(offenderNumber) }
