@@ -13,6 +13,8 @@ generic-service:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-production
     enabled: true
+    v1_2_enabled: true
+    v0_47_enabled: true
     host: app-hostname.local    # override per environment
     tlsSecretName: nomis-prisoner-deletion-service-cert
     path: /
