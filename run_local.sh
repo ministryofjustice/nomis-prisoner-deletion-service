@@ -16,7 +16,7 @@ docker compose -f docker-compose.local.yml up -d
 
 while [[ $(curl -sb -H "Accept: application/json" "http://localhost:4566/health") != *"$healthyStatus"* ]]; do sleep 1; done
 
-println "ALL SERVICES ARE RUNNING"
+println "ALL DEPENDENCIES ARE RUNNING"
 
 println "STARTING NOMIS PRISONER DELETION SERVICE WITH THE 'DEV' PROFILE"
 ./gradlew bootRun --args='--spring.profiles.active=dev'
