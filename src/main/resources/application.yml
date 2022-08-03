@@ -28,7 +28,6 @@ spring:
     group:
       test:
         - "stdout"
-        - "localstack"
         - "nomis-hsqldb"
       dev:
         - "stdout"

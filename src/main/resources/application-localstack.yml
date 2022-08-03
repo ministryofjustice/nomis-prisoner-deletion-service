@@ -2,13 +2,11 @@ hmpps.sqs:
   provider: localstack
   queues:
     datacompliancerequest:
-      queueName: ${random.uuid}
-      dlqName: ${random.uuid}
+      queueName: data_compliance_request_queue
+      dlqName: data_compliance_request_queue_dlq
     datacomplianceresponse:
-      queueName: ${random.uuid}
-      dlqName: ${random.uuid}
+      queueName: data_compliance_response_queue
+      dlqName: data_compliance_response_queue_dlq
   topics:
-    datacomplianceevents:
-      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     domainevents:
-      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+      arn: arn:aws:sns:eu-west-2:000000000000:hmpps_domain_events

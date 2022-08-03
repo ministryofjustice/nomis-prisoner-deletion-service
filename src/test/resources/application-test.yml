@@ -11,6 +11,21 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+hmpps.sqs:
+  provider: localstack
+  queues:
+    datacompliancerequest:
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+    datacomplianceresponse:
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+  topics:
+    datacomplianceevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    domainevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
 data.compliance:
   deletion.enabled: true
   deceased.deletion.enabled: true
