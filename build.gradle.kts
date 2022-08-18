@@ -26,11 +26,11 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.9")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.10")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.10")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.10")
 
-  developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.2")
+  developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.3")
 
   testImplementation("org.testcontainers:localstack:1.17.3")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
@@ -38,7 +38,7 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-  testImplementation("org.mockito:mockito-inline:4.6.1")
+  testImplementation("org.mockito:mockito-inline:4.7.0")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
 }
 
