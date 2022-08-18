@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Oracle10gDialect
+
+  flyway:
+    enabled: false
+    locations:
+
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521:CNOMT3
+    username: api_proxy_user
+    password:
+
+schema:
+  type: nomis
+  database.dialect: ORACLE_11

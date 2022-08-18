@@ -33,6 +33,12 @@ spring:
         - "stdout"
         - "localstack"
         - "nomis-hsqldb"
+      dev-nomis-t3:
+        - "stdout"
+        - "localstack"
+        - "dev"
+        - "nomis-t3"
+
   devtools:
     add-properties: false
 
