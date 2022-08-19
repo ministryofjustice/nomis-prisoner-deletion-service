@@ -1,8 +1,0 @@
-version: "3"
-services:
-  nomis-prisoner-deletion-service:
-    build:
-      context: .
-    container_name: nomis-prisoner-deletion-service
-    deploy:
-      replicas: 0

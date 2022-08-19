@@ -12,7 +12,7 @@ println "BUILDING PROJECT"
 ./gradlew --no-daemon assemble
 
 println "STARTING UP DEPENDENCIES"
-docker compose -f docker-compose.local.yml up -d
+docker compose up --scale nomis-prisoner-deletion-service=0 -d
 
 while [[ $(curl -sb -H "Accept: application/json" "http://localhost:4566/health") != *"$healthyStatus"* ]]; do sleep 1; done
 
