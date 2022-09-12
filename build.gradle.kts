@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.0"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -38,7 +38,7 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-  testImplementation("org.mockito:mockito-inline:4.7.0")
+  testImplementation("org.mockito:mockito-inline:4.8.0")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
 }
 
