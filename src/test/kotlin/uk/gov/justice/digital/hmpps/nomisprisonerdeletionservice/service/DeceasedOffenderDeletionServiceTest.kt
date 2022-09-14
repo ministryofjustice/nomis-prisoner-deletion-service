@@ -37,6 +37,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 internal class DeceasedOffenderDeletionServiceTest {
 
@@ -104,7 +106,7 @@ internal class DeceasedOffenderDeletionServiceTest {
       offendersLastMovement(offenderNumber2, clock)
     )
 
-    service.deleteDeceasedOffenders(batchId, Pageable.ofSize(2))
+    service.deleteDeceasedOffenders(batchId, emptySet(), Pageable.ofSize(2))
 
     val orderVerifier: InOrder = inOrder(offenderDeletionRepository)
     orderVerifier.verify(offenderDeletionRepository).setContext(AppModuleName.MERGE)
@@ -165,7 +167,7 @@ internal class DeceasedOffenderDeletionServiceTest {
     whenever(movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber2)))
       .thenReturn(null)
 
-    service.deleteDeceasedOffenders(batchId, Pageable.ofSize(2))
+    service.deleteDeceasedOffenders(batchId, emptySet(), Pageable.ofSize(2))
 
     val orderVerifier: InOrder = inOrder(offenderDeletionRepository)
     orderVerifier.verify(offenderDeletionRepository).setContext(AppModuleName.MERGE)
@@ -193,13 +195,63 @@ internal class DeceasedOffenderDeletionServiceTest {
   }
 
   @Test
+  fun `delete deceased offenders excludes retained offenders`() {
+
+    whenever(
+      deceasedOffenderPendingDeletionRepository.findDeceasedOffendersDueForDeletion(
+        LocalDate.now(clock),
+        Pageable.ofSize(2)
+      )
+    ).thenReturn(
+      listOf(
+        OffenderPendingDeletion(offenderNumber1),
+        OffenderPendingDeletion(offenderNumber2)
+      )
+    )
+
+    whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber1))
+      .thenReturn(listOf(buildOffenderAliasPendingDeletion(offenderId1, offenderNumber1)))
+
+    whenever(
+      offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNumber1)
+    ).thenReturn(setOf(offenderId1))
+
+    whenever(
+      movementsService.getDeceasedMovementByOffenders(listOf(offenderNumber1))
+    ).thenReturn(offendersLastMovement(offenderNumber1, clock))
+
+    service.deleteDeceasedOffenders(batchId, setOf(offenderNumber2), Pageable.ofSize(2))
+
+    val orderVerifier: InOrder = inOrder(offenderDeletionRepository)
+    orderVerifier.verify(offenderDeletionRepository).setContext(AppModuleName.MERGE)
+    orderVerifier.verify(offenderDeletionRepository).setContext(AppModuleName.NOMIS_DELETION_SERVICE)
+    verify(eventPublisher).send(
+      DeceasedOffenderDeletionResult(
+        batchId = batchId,
+        deceasedOffenders = listOf(
+          buildDeceasedOffender(offenderId1, offenderNumber1, true, clock)
+        )
+      )
+    )
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        Event.DECEASED_OFFENDER_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
+      )
+    )
+
+    verifyNoMoreInteractions(eventPublisher)
+    verifyNoMoreInteractions(applicationEventPublisher)
+  }
+
+  @Test
   fun `delete deceased offender throws when unable to update context`() {
     doThrow(SQLWarningException("Some Exception", SQLWarning("SQL warning")))
       .whenever(offenderDeletionRepository).setContext(AppModuleName.MERGE)
     assertThatThrownBy {
       service.deleteDeceasedOffenders(
-        batchId,
-        Pageable.unpaged()
+          batchId,
+          emptySet(),
+          Pageable.unpaged()
       )
     }.isInstanceOf(SQLWarningException::class.java)
   }
@@ -219,8 +271,9 @@ internal class DeceasedOffenderDeletionServiceTest {
 
     assertThatThrownBy {
       service.deleteDeceasedOffenders(
-        batchId,
-        Pageable.ofSize(2)
+          batchId,
+          emptySet(),
+          Pageable.ofSize(2)
       )
     }
       .isInstanceOf(java.lang.IllegalStateException::class.java)
@@ -252,8 +305,9 @@ internal class DeceasedOffenderDeletionServiceTest {
 
       assertThatThrownBy {
         service.deleteDeceasedOffenders(
-          batchId,
-          Pageable.unpaged()
+            batchId,
+            emptySet(),
+            Pageable.unpaged()
         )
       }
         .isInstanceOf(IllegalStateException::class.java)

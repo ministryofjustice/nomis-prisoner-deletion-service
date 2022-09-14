@@ -41,7 +41,7 @@ class DeceasedOffenderDeletionService(
   val clock: Clock
 ) {
 
-  fun deleteDeceasedOffenders(batchId: Long, pageable: Pageable) {
+  fun deleteDeceasedOffenders(batchId: Long, excludedOffenders: Set<String>, pageable: Pageable) {
     check(properties.deceasedDeletionEnabled) { "Deceased deletion is not enabled!" }
 
     var deceasedOffenders: MutableList<DeceasedOffender> = mutableListOf()
@@ -49,6 +49,7 @@ class DeceasedOffenderDeletionService(
     offenderDeletionRepository.setContext(AppModuleName.MERGE)
 
     deceasedOffenderPendingDeletionRepository.findDeceasedOffendersDueForDeletion(LocalDate.now(clock), pageable)
+      .filter { !excludedOffenders.contains(it.offenderNumber) }
       .forEach {
         val offenderNumber = it.offenderNumber
         val offenderAliases: List<OffenderAliasPendingDeletion> = getOffenderAliases(offenderNumber)

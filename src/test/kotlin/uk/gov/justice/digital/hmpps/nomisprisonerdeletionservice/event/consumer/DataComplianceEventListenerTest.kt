@@ -574,22 +574,28 @@ internal class DataComplianceEventListenerTest {
     handleMessage(
       """
         {"batchId":987,
+        "excludedOffenders":["A1234AA"],
         "limit":10}
       """.trimIndent(),
       mapOf("eventType" to "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
     )
-    verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(987L, PageRequest.of(0, 10))
+    verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(
+        987L,
+         setOf("A1234AA"),
+        PageRequest.of(0, 10)
+    )
   }
 
   @Test
   fun `handle deceased offender deletion with no limit`() {
     handleMessage(
       """
-        {"batchId":987}
+        {"batchId":987},
+         "excludedOffenders":[]
       """.trimIndent(),
       mapOf("eventType" to "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
     )
-    verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(987L, Pageable.unpaged())
+    verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(987L, emptySet(), Pageable.unpaged())
   }
 
   @Test

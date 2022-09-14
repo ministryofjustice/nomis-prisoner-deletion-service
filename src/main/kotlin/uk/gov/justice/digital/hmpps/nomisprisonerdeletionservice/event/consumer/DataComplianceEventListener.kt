@@ -128,7 +128,7 @@ final class DataComplianceEventListener(
       parseEvent(message.payload, DeceasedOffenderDeletionRequest::class.java)
     val pageRequest: Pageable = (event.limit?.let { PageRequest.of(0, it) } ?: unpaged())
 
-    deceasedOffenderDeletionService.deleteDeceasedOffenders(event.batchId!!, pageRequest)
+    deceasedOffenderDeletionService.deleteDeceasedOffenders(event.batchId!!, event.excludedOffenders, pageRequest)
   }
 
   fun handleNoBookingOffenderDeletionRequest(message: Message<String>) {
