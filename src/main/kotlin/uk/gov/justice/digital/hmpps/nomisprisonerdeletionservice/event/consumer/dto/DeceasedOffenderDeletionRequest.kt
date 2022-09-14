@@ -7,5 +7,6 @@ import javax.validation.constraints.NotNull
 data class DeceasedOffenderDeletionRequest(
   @field:NotNull(message = "No batch ID specified in the request")
   val batchId: Long? = null,
+  val excludedOffenders: Set<String> = emptySet(),
   val limit: Int? = null
 )
