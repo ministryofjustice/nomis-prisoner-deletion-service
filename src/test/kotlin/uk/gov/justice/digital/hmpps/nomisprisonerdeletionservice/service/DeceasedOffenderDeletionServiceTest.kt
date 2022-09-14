@@ -9,6 +9,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
@@ -37,8 +38,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.verifyNoMoreInteractions
 
 internal class DeceasedOffenderDeletionServiceTest {
 
@@ -249,9 +248,9 @@ internal class DeceasedOffenderDeletionServiceTest {
       .whenever(offenderDeletionRepository).setContext(AppModuleName.MERGE)
     assertThatThrownBy {
       service.deleteDeceasedOffenders(
-          batchId,
-          emptySet(),
-          Pageable.unpaged()
+        batchId,
+        emptySet(),
+        Pageable.unpaged()
       )
     }.isInstanceOf(SQLWarningException::class.java)
   }
@@ -271,9 +270,9 @@ internal class DeceasedOffenderDeletionServiceTest {
 
     assertThatThrownBy {
       service.deleteDeceasedOffenders(
-          batchId,
-          emptySet(),
-          Pageable.ofSize(2)
+        batchId,
+        emptySet(),
+        Pageable.ofSize(2)
       )
     }
       .isInstanceOf(java.lang.IllegalStateException::class.java)
@@ -305,9 +304,9 @@ internal class DeceasedOffenderDeletionServiceTest {
 
       assertThatThrownBy {
         service.deleteDeceasedOffenders(
-            batchId,
-            emptySet(),
-            Pageable.unpaged()
+          batchId,
+          emptySet(),
+          Pageable.unpaged()
         )
       }
         .isInstanceOf(IllegalStateException::class.java)

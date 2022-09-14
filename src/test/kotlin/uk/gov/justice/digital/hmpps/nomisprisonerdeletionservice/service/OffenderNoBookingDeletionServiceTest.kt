@@ -258,7 +258,7 @@ class OffenderNoBookingDeletionServiceTest {
     fun `should throw when deletion for offenders with no bookings is disabled`() {
       Assertions.assertThatThrownBy {
         service.deleteOffendersWithNoBookings(
-            batchId, emptySet(), Pageable.unpaged()
+          batchId, emptySet(), Pageable.unpaged()
         )
       }
         .isInstanceOf(IllegalStateException::class.java)
