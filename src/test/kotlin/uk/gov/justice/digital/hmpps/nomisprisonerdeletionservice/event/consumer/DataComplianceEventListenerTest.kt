@@ -580,9 +580,9 @@ internal class DataComplianceEventListenerTest {
       mapOf("eventType" to "DATA_COMPLIANCE_DECEASED-OFFENDER-DELETION-REQUEST")
     )
     verify(deceasedOffenderDeletionService).deleteDeceasedOffenders(
-        987L,
-         setOf("A1234AA"),
-        PageRequest.of(0, 10)
+      987L,
+      setOf("A1234AA"),
+      PageRequest.of(0, 10)
     )
   }
 
