@@ -41,13 +41,13 @@ class OffenderNoBookingDeletionService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun deleteOffendersWithNoBookings(batchId: Long, pageable: Pageable) {
+  fun deleteOffendersWithNoBookings(batchId: Long, excludedOffenders: Set<String>, pageable: Pageable) {
 
     check(properties.offenderNoBookingDeletionEnabled) { "Offender No bookings deletion is not enabled!" }
 
     var offenders: MutableList<Offender> = mutableListOf()
 
-    offendersWithNoBookings(pageable)
+    offendersWithNoBookings(excludedOffenders, pageable)
       .forEach {
         val (offenderNumber, offenderAliases) = it
 
@@ -69,8 +69,9 @@ class OffenderNoBookingDeletionService(
     if (offenders.isNotEmpty()) eventPublisher.send(OffenderNoBookingDeletionResult(batchId, offenders))
   }
 
-  private fun offendersWithNoBookings(pageable: Pageable) =
+  private fun offendersWithNoBookings(excludedOffenders: Set<String>, pageable: Pageable) =
     offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(pageable)
+      .filter { !excludedOffenders.contains(it.offenderNumber) }
       .map { it.offenderNumber to getOffenderAliases(it.offenderNumber) }
       .filter { it.second.all { aliasPendingDeletion -> aliasPendingDeletion.offenderBookings.isEmpty() } }
 

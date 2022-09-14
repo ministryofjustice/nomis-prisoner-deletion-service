@@ -618,11 +618,12 @@ internal class DataComplianceEventListenerTest {
     handleMessage(
       """
         {"batchId":987,
+        "excludedOffenders":["A1234AA"],
         "limit":10}
       """.trimIndent(),
       mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST")
     )
-    verify(offenderNoBookingDeletionService).deleteOffendersWithNoBookings(987L, PageRequest.of(0, 10))
+    verify(offenderNoBookingDeletionService).deleteOffendersWithNoBookings(987L, setOf("A1234AA"), PageRequest.of(0, 10))
   }
 
   @Test
@@ -630,7 +631,8 @@ internal class DataComplianceEventListenerTest {
     assertThatThrownBy {
       handleMessage(
         """
-          {"limit":10}
+          {"limit":10},
+          "excludedOffenders":[],
         """.trimIndent(),
         mapOf("eventType" to "DATA_COMPLIANCE_OFFENDER-NO-BOOKING-DELETION-REQUEST")
       )

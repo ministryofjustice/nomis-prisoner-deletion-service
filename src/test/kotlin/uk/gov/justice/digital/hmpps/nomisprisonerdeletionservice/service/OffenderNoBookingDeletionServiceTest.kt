@@ -100,7 +100,7 @@ class OffenderNoBookingDeletionServiceTest {
     whenever(offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber2))
       .thenReturn(setOf(offenderId2))
 
-    service.deleteOffendersWithNoBookings(batchId, Pageable.ofSize(2))
+    service.deleteOffendersWithNoBookings(batchId, emptySet(), Pageable.ofSize(2))
 
     verify(eventPublisher).send(
       OffenderNoBookingDeletionResult(
@@ -166,7 +166,7 @@ class OffenderNoBookingDeletionServiceTest {
       offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber1)
     ).thenReturn(setOf(offenderId1))
 
-    service.deleteOffendersWithNoBookings(batchId, Pageable.ofSize(2))
+    service.deleteOffendersWithNoBookings(batchId, emptySet(), Pageable.ofSize(2))
 
     verify(eventPublisher).send(
       OffenderNoBookingDeletionResult(
@@ -184,6 +184,53 @@ class OffenderNoBookingDeletionServiceTest {
         Event.OFFENDER_NO_BOOKING_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
       )
     )
+    verifyNoMoreInteractions(applicationEventPublisher)
+  }
+
+  @Test
+  fun `delete offenders with no bookings excludes retained offenders`() {
+
+    whenever(
+      offenderNoBookingPendingDeletionRepository.findOffendersWithNoBookingsDueForDeletion(Pageable.ofSize(2))
+    ).thenReturn(
+      listOf(
+        OffenderPendingDeletion(offenderNumber1),
+        OffenderPendingDeletion(offenderNumber2)
+      )
+    )
+
+    whenever(offenderAliasPendingDeletionRepository.findOffenderAliasPendingDeletionByOffenderNumber(offenderNumber1))
+      .thenReturn(
+        listOf(
+          buildOffenderAliasPendingDeletion(
+            offenderId = offenderId1,
+            offenderNumber = offenderNumber1,
+            hasBooking = false
+          )
+        )
+      )
+
+    whenever(
+      offenderDeletionRepository.deleteAllOffenderDataExcludingBookings(offenderNumber1)
+    ).thenReturn(setOf(offenderId1))
+
+    service.deleteOffendersWithNoBookings(batchId, setOf(offenderNumber2), Pageable.ofSize(2))
+
+    verify(eventPublisher).send(
+      OffenderNoBookingDeletionResult(
+        batchId = batchId,
+        offenders = listOf(
+          buildOffender(offenderId1, offenderNumber1),
+        )
+      )
+    )
+    verify(applicationEventPublisher).publishEvent(
+      DeletionEvent(
+        Event.OFFENDER_NO_BOOKING_DELETION, setOf(offenderId1), offenderNumber1, batchId, LocalDateTime.now(clock)
+      )
+    )
+
+    verifyNoMoreInteractions(eventPublisher)
     verifyNoMoreInteractions(applicationEventPublisher)
   }
 
@@ -211,7 +258,7 @@ class OffenderNoBookingDeletionServiceTest {
     fun `should throw when deletion for offenders with no bookings is disabled`() {
       Assertions.assertThatThrownBy {
         service.deleteOffendersWithNoBookings(
-          batchId, Pageable.unpaged()
+            batchId, emptySet(), Pageable.unpaged()
         )
       }
         .isInstanceOf(IllegalStateException::class.java)
