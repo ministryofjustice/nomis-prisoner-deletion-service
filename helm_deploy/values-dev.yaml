@@ -4,6 +4,10 @@
 generic-service:
   replicaCount: 2
 
+  poddisruptionbudget:
+    enabled: true
+    minAvailable: 1
+
   ingress:
     host: nomis-delete.aks-dev-1.studio-hosting.service.justice.gov.uk
 
