@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.1-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.2-beta"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -30,7 +30,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
 
-  developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.3")
+  developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.4")
 
   testImplementation("org.testcontainers:localstack:1.17.3")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
