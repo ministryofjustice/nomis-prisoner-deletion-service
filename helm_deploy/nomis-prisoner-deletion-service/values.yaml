@@ -4,6 +4,10 @@ generic-service:
 
   replicaCount: 4
 
+  poddisruptionbudget:
+    enabled: true
+    minAvailable: 3
+
   image:
     repository: quay.io/hmpps/nomis-prisoner-deletion-service
     tag: app_version    # override at deployment time
